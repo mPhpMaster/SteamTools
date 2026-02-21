@@ -143,9 +143,7 @@ Write-Host ""
 Write-Host "  [3/10] Windows Defender exclusions..." -ForegroundColor Yellow -NoNewline
 try {
     $defenderPreferences = Get-MpPreference -ErrorAction SilentlyContinue
-    $ex5: Remove steam.cfg (update blocker)
-# ============================================
-Write-Host "  [5/10s -notcontains $steamPath) {
+    if ($defenderPreferences.ExclusionPath -notcontains $steamPath) {
         Add-MpPreference -ExclusionPath $steamPath -ErrorAction SilentlyContinue
         Write-Host " Added" -ForegroundColor Green
         Write-Host "        Steam folder added to exclusions" -ForegroundColor DarkGray
