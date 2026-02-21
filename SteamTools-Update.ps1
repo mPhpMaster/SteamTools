@@ -1,5 +1,5 @@
 $pluginPath = "C:\Program Files (x86)\Steam\plugins\mPhpMaster"
-$downloadUrl = "https://github.com/mPhpMaster/SteamTools/releases/download/v1.8.6/SteamTools_v1.8.6.zip"
+$downloadUrl = "https://github.com/mPhpMaster/SteamTools/archive/refs/tags/v1.8.6.zip"
 $tempZip = "$env:TEMP\SteamTools_v1.8.6.zip"
 $pluginsFolder = "C:\Program Files (x86)\Steam\plugins"
 
@@ -19,7 +19,8 @@ if (Test-Path $pluginPath) {
         Write-Host "[!] Failed to delete folder: $_" -ForegroundColor Red
         exit 1
     }
-} else {
+}
+else {
     Write-Host "[*] Folder not found, proceeding to download..." -ForegroundColor Yellow
 }
 

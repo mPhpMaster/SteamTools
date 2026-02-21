@@ -1,12 +1,13 @@
 {
     "btn": {
-        "add": "Add to mPhpMaster",
+        "add": "Add using mPhpMaster",
         "addSoftware": "Add Software to Library",
-        "remove": "Remove via mPhpMaster",
+        "remove": "Remove using mPhpMaster",
         "loading": "Loading...",
         "removing": "Removing...",
         "cancel": "Cancel",
         "restartSteam": "Restart Steam",
+        "openMenu": "Steam Tools",
         "addByAppId": "Add Game"
     },
     "addByAppId": {
@@ -24,6 +25,7 @@
         "errorEmpty": "Please enter an AppID",
         "errorInvalid": "Invalid AppID - must be a positive number"
     },
+    "welcomeTitle": "👋 Welcome",
     "status": {
         "downloading": "Downloading and installing game files...",
         "checking": "Checking availability...",
@@ -42,7 +44,9 @@
         "gameAdded": "Game has been added successfully!",
         "gameRemoved": "Game has been removed.",
         "downloadStarted": "Download started...",
-        "steamRestarting": "Steam is restarting..."
+        "steamRestarting": "Steam is restarting...",
+        "dlcTitle": "⚠️ Downloadable Content (DLC)",
+        "dlcWarning": "You cannot add DLC separately.\n\nWhen adding the base game, you will get all DLCs with it automatically."
     },
     "activations": {
         "header": "Game Activations",
@@ -73,9 +77,48 @@
         "updating": "Updating...",
         "updatingToken": "Updating token...",
         "enterTokenFirst": "Please enter token first",
+        "checkingInstall": "Checking install...",
+        "searchAllDrives": "Search game in all drives",
+        "searchingAllDrives": "Searching in all drives...",
+        "foundInPath": "Game found at: {path}",
+        "downloadActivationFiles": "Download activation files",
+        "gameNotFoundAnyDrive": "Game was not found on any drive",
+        "searchAgain": "Search again",
+        "searchError": "Search error: {error}",
+        "gameNotFound": "Game not found",
+        "searchFailed": "Search failed",
+        "gameNotInstalled": "Game is not installed",
+        "installFirst": "Game is not installed. Install the game first.",
+        "activationFilesDownloading": "Downloading activation files...",
+        "activationFilesInstalled": "Activation files installed successfully!",
+        "installedSuccess": "Installed successfully!",
+        "extracting": "Extracting...",
+        "downloadStartFailed": "Failed to start download",
         "comingSoon": "Coming Soon",
         "enterUserID": "Enter your ID",
         "pasteUserID": "Paste ID here..."
+    },
+    "fixes": {
+        "header": "Game Fixes",
+        "menu": "Fixes List",
+        "gameIdNotFound": "Game ID was not found",
+        "scanning": "Scanning...",
+        "checkFailed": "Failed to check fixes",
+        "bypassTitle": "Bypass Protection",
+        "genericAvailable": "General bypass fix available (ready to install)",
+        "genericUnavailable": "No bypass fix available for this game",
+        "install": "Install",
+        "unexpectedError": "Unexpected error",
+        "installPathNotFound": "Game install path not found",
+        "downloadingFix": "Downloading {fixType}...",
+        "starting": "Starting...",
+        "cancelled": "Cancelled",
+        "installSuccess": "Installed successfully!",
+        "canLaunchNow": "You can launch the game now",
+        "finish": "Finish",
+        "installedFix": "{fixType} installed successfully!",
+        "installFailed": "Installation failed",
+        "installFailedGeneric": "Failed to install fix"
     },
     "generic": {
         "error": "Error",

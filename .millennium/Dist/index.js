@@ -1827,9 +1827,9 @@ let PluginEntryPointMain = function () {
             locales = {
                 en: {
                     btn: {
-                        add: "Add to Library",
-                        addSoftware: "Add Software to Library",
-                        remove: "Remove from Library",
+                        add: "Add using mPhpMaster",
+                        addSoftware: "Add Software using mPhpMaster",
+                        remove: "Remove using mPhpMaster",
                         loading: "Loading...",
                         removing: "Removing...",
                         cancel: "Cancel",
@@ -1892,7 +1892,46 @@ let PluginEntryPointMain = function () {
                         eaSearchInfo: "Will search for <code style='color:#00bfa5'>anadius.cfg</code><br>and update the DenuvoToken value",
                         updating: "Updating...",
                         updatingToken: "Updating token...",
-                        enterTokenFirst: "Please enter token first"
+                        enterTokenFirst: "Please enter token first",
+                        checkingInstall: "Checking install...",
+                        searchAllDrives: "Search game in all drives",
+                        searchingAllDrives: "Searching in all drives...",
+                        foundInPath: "Game found at: {path}",
+                        downloadActivationFiles: "Download activation files",
+                        gameNotFoundAnyDrive: "Game was not found on any drive",
+                        searchAgain: "Search again",
+                        searchError: "Search error: {error}",
+                        gameNotFound: "Game not found",
+                        searchFailed: "Search failed",
+                        gameNotInstalled: "Game is not installed",
+                        installFirst: "Game is not installed. Install the game first.",
+                        activationFilesDownloading: "Downloading activation files...",
+                        activationFilesInstalled: "Activation files installed successfully!",
+                        installedSuccess: "Installed successfully!",
+                        extracting: "Extracting...",
+                        downloadStartFailed: "Failed to start download"
+                    },
+                    fixes: {
+                        header: "Game Fixes",
+                        menu: "Fixes List",
+                        gameIdNotFound: "Game ID was not found",
+                        scanning: "Scanning...",
+                        checkFailed: "Failed to check fixes",
+                        bypassTitle: "Bypass Protection",
+                        genericAvailable: "General bypass fix available (ready to install)",
+                        genericUnavailable: "No bypass fix available for this game",
+                        install: "Install",
+                        unexpectedError: "Unexpected error",
+                        installPathNotFound: "Game install path not found",
+                        downloadingFix: "Downloading {fixType}...",
+                        starting: "Starting...",
+                        cancelled: "Cancelled",
+                        installSuccess: "Installed successfully!",
+                        canLaunchNow: "You can launch the game now",
+                        finish: "Finish",
+                        installedFix: "{fixType} installed successfully!",
+                        installFailed: "Installation failed",
+                        installFailedGeneric: "Failed to install fix"
                     }
                 },
                 ar: {
@@ -1958,7 +1997,46 @@ let PluginEntryPointMain = function () {
                         eaSearchInfo: "وتحديث قيمة التوكن<br><code style='color:#00bfa5'>anadius.cfg</code> سيتم البحث عن ملف",
                         updating: "جاري التحديث...",
                         updatingToken: "جاري تحديث التوكن...",
-                        enterTokenFirst: "الرجاء إدخال التوكن أولاً"
+                        enterTokenFirst: "الرجاء إدخال التوكن أولاً",
+                        checkingInstall: "جاري التحقق من التثبيت...",
+                        searchAllDrives: "البحث عن اللعبة في جميع الأقراص",
+                        searchingAllDrives: "جاري البحث في جميع الأقراص...",
+                        foundInPath: "تم العثور على اللعبة في: {path}",
+                        downloadActivationFiles: "تحميل ملفات التفعيل",
+                        gameNotFoundAnyDrive: "لم يتم العثور على اللعبة في أي قرص",
+                        searchAgain: "البحث مرة أخرى",
+                        searchError: "حدث خطأ أثناء البحث: {error}",
+                        gameNotFound: "لم يتم العثور على اللعبة",
+                        searchFailed: "فشل البحث",
+                        gameNotInstalled: "اللعبة غير مثبتة",
+                        installFirst: "اللعبة غير مثبتة. قم بتثبيت اللعبة أولاً.",
+                        activationFilesDownloading: "جاري تحميل ملفات التفعيل...",
+                        activationFilesInstalled: "تم تثبيت ملفات التفعيل بنجاح!",
+                        installedSuccess: "تم التثبيت بنجاح!",
+                        extracting: "جاري الاستخراج...",
+                        downloadStartFailed: "فشل بدء التحميل"
+                    },
+                    fixes: {
+                        header: "إصلاحات الألعاب",
+                        menu: "قائمة الإصلاحات",
+                        gameIdNotFound: "لم يتم العثور على معرف اللعبة",
+                        scanning: "جاري الفحص...",
+                        checkFailed: "فشل في فحص الإصلاحات",
+                        bypassTitle: "تخطي الحماية",
+                        genericAvailable: "إصلاح عام لتجاوز الحماية (يعمل، جاهز للتحميل)",
+                        genericUnavailable: "لا يوجد تخطي حماية للعبة",
+                        install: "تثبيت",
+                        unexpectedError: "حدث خطأ غير متوقع",
+                        installPathNotFound: "لم يتم العثور على مسار تثبيت اللعبة",
+                        downloadingFix: "جاري تحميل {fixType}...",
+                        starting: "جاري البدء...",
+                        cancelled: "تم الإلغاء",
+                        installSuccess: "تم التثبيت بنجاح!",
+                        canLaunchNow: "يمكنك تشغيل اللعبة الآن",
+                        finish: "إنهاء",
+                        installedFix: "تم تثبيت {fixType} بنجاح!",
+                        installFailed: "فشل التثبيت",
+                        installFailedGeneric: "فشل في تثبيت الإصلاح"
                     },
                     generic: {
                         error: "خطأ",
@@ -2376,7 +2454,7 @@ let PluginEntryPointMain = function () {
                     border-bottom: 1px solid rgba(103, 193, 245, 0.3);
                     text-align: center;
                 `;
-                fixesSectionHeader.textContent = "🔧 إصلاحات الألعاب";
+                fixesSectionHeader.textContent = "🔧 " + i("fixes.header");
                 content.appendChild(fixesSectionHeader);
 
                 // Fixes Button
@@ -2398,7 +2476,7 @@ let PluginEntryPointMain = function () {
                     text-align: right;
                     direction: rtl;
                 `;
-                fixesBtn.innerHTML = `<span style="font-size: 20px;">🛠️</span><span>قائمة الإصلاحات</span>`;
+                fixesBtn.innerHTML = `<span style="font-size: 20px;">🛠️</span><span>${i("fixes.menu")}</span>`;
                 fixesBtn.onmouseenter = () => {
                     fixesBtn.style.background = "linear-gradient(90deg, rgba(76, 175, 80, 0.5) 0%, rgba(42, 71, 94, 0.8) 100%)";
                     fixesBtn.style.borderColor = "#4caf50";
@@ -2482,7 +2560,7 @@ let PluginEntryPointMain = function () {
             // Get current appid
             const currentAppId = parseInt(window.location.href.match(/\/app\/(\d+)/)?.[1] || "0", 10);
             if (!currentAppId) {
-                mPhpMasterNotification.error("لم يتم العثور على معرف اللعبة");
+                mPhpMasterNotification.error(i("fixes.gameIdNotFound"));
                 return;
             }
 
@@ -2546,7 +2624,7 @@ let PluginEntryPointMain = function () {
                 font-weight: 700;
                 letter-spacing: 0.5px;
             `;
-            title.innerHTML = `🛠️ قائمة الإصلاحات`;
+            title.innerHTML = `🛠️ ${i("fixes.menu")}`;
 
             titleContainer.appendChild(logo);
             titleContainer.appendChild(title);
@@ -2652,7 +2730,7 @@ let PluginEntryPointMain = function () {
                         animation: spin 0.8s ease infinite;
                         margin: 0 auto 20px;
                     "></div>
-                    <div style="color: #4caf50; font-size: 16px; font-weight: 600; margin-bottom: 20px;">جاري الفحص...</div>
+                    <div style="color: #4caf50; font-size: 16px; font-weight: 600; margin-bottom: 20px;">${i("fixes.scanning")}</div>
                 </div>
                 <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
             `;
@@ -2673,7 +2751,7 @@ let PluginEntryPointMain = function () {
                     body.innerHTML = `
                         <div style="text-align: center; padding: 40px; position: relative; z-index: 1;">
                             <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
-                            <div style="color: #f44336; font-size: 18px;">${result?.error || 'فشل في فحص الإصلاحات'}</div>
+                            <div style="color: #f44336; font-size: 18px;">${result?.error || i("fixes.checkFailed")}</div>
                             <button onclick="this.closest('[data-mPhpMaster-menu]').remove()" style="
                                 margin-top: 20px;
                                 padding: 10px 24px;
@@ -2683,7 +2761,7 @@ let PluginEntryPointMain = function () {
                                 border-radius: 6px;
                                 cursor: pointer;
                                 font-size: 14px;
-                            ">إغلاق</button>
+                            ">${i("generic.close")}</button>
                         </div>
                     `;
                     return;
@@ -2745,11 +2823,11 @@ let PluginEntryPointMain = function () {
                             ">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                                        <span style="font-size: 18px; font-weight: 700; color: ${genericFix?.available ? '#ff5252' : '#ff5252'}; letter-spacing: 0.5px;">تخطي الحماية</span>
+                                        <span style="font-size: 18px; font-weight: 700; color: ${genericFix?.available ? '#ff5252' : '#ff5252'}; letter-spacing: 0.5px;">${i("fixes.bypassTitle")}</span>
                                         <span style="font-size: 20px;">${genericFix?.available ? '✅' : '❌'}</span>
                                     </div>
                                     <div style="color: #8b929a; font-size: 13px;">
-                                        ${genericFix?.available ? 'إصلاح عام لتجاوز الحماية (يعمل، جاهز للتحميل)' : 'لايوجد تخطي حماية للعبة'}
+                                        ${genericFix?.available ? i("fixes.genericAvailable") : i("fixes.genericUnavailable")}
                                     </div>
                                 </div>
                                 ${genericFix?.available ? `
@@ -2765,7 +2843,7 @@ let PluginEntryPointMain = function () {
                                         box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
                                         transition: all 0.2s ease;
                                     " onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform='translateY(0)'">
-                                        تثبيت
+                                        ${i("fixes.install")}
                                     </button>
                                 ` : ''}
                             </div>
@@ -2785,7 +2863,7 @@ let PluginEntryPointMain = function () {
                 body.innerHTML = `
                     <div style="text-align: center; padding: 40px; position: relative; z-index: 1;">
                         <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
-                        <div style="color: #f44336; font-size: 18px;">حدث خطأ غير متوقع</div>
+                        <div style="color: #f44336; font-size: 18px;">${i("fixes.unexpectedError")}</div>
                         <div style="color: #8b929a; font-size: 13px; margin: 10px 0;">${String(err)}</div>
                     </div>
                 `;
@@ -2795,7 +2873,7 @@ let PluginEntryPointMain = function () {
         // Apply Fix Function (Modified for new UI style)
         async function applyFix(appid, downloadUrl, installPath, fixType, gameName, body, overlay) {
             if (!installPath) {
-                mPhpMasterNotification.error("لم يتم العثور على مسار تثبيت اللعبة");
+                mPhpMasterNotification.error(i("fixes.installPathNotFound"));
                 return;
             }
 
@@ -2811,8 +2889,8 @@ let PluginEntryPointMain = function () {
                         animation: spin 1s linear infinite;
                         margin: 0 auto 20px;
                     "></div>
-                    <div style="color: #4caf50; font-size: 18px; font-weight: 600; margin-bottom: 12px;">جاري تحميل ${fixType}...</div>
-                    <div id="mphpmaster-fix-progress" style="color: #8b929a; font-size: 14px;">جاري البدء...</div>
+                    <div style="color: #4caf50; font-size: 18px; font-weight: 600; margin-bottom: 12px;">${i("fixes.downloadingFix", { fixType })}</div>
+                    <div id="mphpmaster-fix-progress" style="color: #8b929a; font-size: 14px;">${i("fixes.starting")}</div>
                     <div style="margin-top: 25px; background: rgba(255,255,255,0.06); border-radius: 4px; height: 6px; overflow: hidden; width: 80%; margin-left: auto; margin-right: auto;">
                         <div id="mphpmaster-fix-progress-bar" style="width: 0%; height: 100%; background: #4caf50; transition: width 0.3s ease; border-radius: 4px;"></div>
                     </div>
@@ -2826,7 +2904,7 @@ let PluginEntryPointMain = function () {
                         cursor: pointer;
                         font-size: 14px;
                         transition: all 0.2s ease;
-                    " onmouseenter="this.style.background='rgba(244, 67, 54, 0.1)'" onmouseleave="this.style.background='transparent'">إلغاء</button>
+                    " onmouseenter="this.style.background='rgba(244, 67, 54, 0.1)'" onmouseleave="this.style.background='transparent'">${i("btn.cancel")}</button>
                 </div>
             `;
 
@@ -2837,7 +2915,7 @@ let PluginEntryPointMain = function () {
             cancelBtn.onclick = async () => {
                 await l("CancelFix", { appid });
                 overlay.remove();
-                mPhpMasterNotification.info("تم إلغاء التحميل");
+                mPhpMasterNotification.info(i("fixes.cancelled"));
             };
 
             try {
@@ -2872,14 +2950,14 @@ let PluginEntryPointMain = function () {
                         progressText.innerHTML = `<span style="color:#e4e7e9">${percent}%</span> <span style="color:#677079">(${mb} / ${totalMb} MB)</span>`;
                     } else if (state.status === 'extracting') {
                         progressBar.style.width = '95%';
-                        progressText.textContent = 'جاري استخراج الملفات...';
+                        progressText.textContent = i("status.extracting");
                     } else if (state.status === 'done') {
                         progressBar.style.width = '100%';
                         body.innerHTML = `
                             <div style="text-align: center; padding: 40px; position: relative; z-index: 1;">
                                 <div style="font-size: 50px; margin-bottom: 16px;">✅</div>
-                                <div style="color: #4caf50; font-size: 20px; font-weight: 600; margin-bottom: 12px;">تم التثبيت بنجاح!</div>
-                                <div style="color: #8b929a; font-size: 14px; margin-bottom: 24px;">يمكنك تشغيل اللعبة الآن</div>
+                                <div style="color: #4caf50; font-size: 20px; font-weight: 600; margin-bottom: 12px;">${i("fixes.installSuccess")}</div>
+                                <div style="color: #8b929a; font-size: 14px; margin-bottom: 24px;">${i("fixes.canLaunchNow")}</div>
                                 <button onclick="this.closest('[data-mPhpMaster-menu]').remove()" style="
                                     padding: 12px 30px;
                                     background: #4caf50;
@@ -2890,17 +2968,17 @@ let PluginEntryPointMain = function () {
                                     font-size: 15px;
                                     font-weight: 600;
                                     box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-                                ">إنهاء</button>
+                                ">${i("fixes.finish")}</button>
                             </div>
                         `;
-                        mPhpMasterNotification.success(`تم تثبيت ${fixType} بنجاح!`, gameName);
+                        mPhpMasterNotification.success(i("fixes.installedFix", { fixType }), gameName);
                         break;
                     } else if (state.status === 'failed' || state.status === 'cancelled') {
                         body.innerHTML = `
                             <div style="text-align: center; padding: 40px; position: relative; z-index: 1;">
                                 <div style="font-size: 50px; margin-bottom: 16px;">❌</div>
                                 <div style="color: #f44336; font-size: 18px; font-weight: 600; margin-bottom: 10px;">
-                                    ${state.status === 'cancelled' ? 'تم الإلغاء' : 'فشل التثبيت'}
+                                    ${state.status === 'cancelled' ? i("fixes.cancelled") : i("fixes.installFailed")}
                                 </div>
                                 <div style="color: #8b929a; font-size: 14px; margin-bottom: 24px;">${state.error || ''}</div>
                                 <button onclick="this.closest('[data-mPhpMaster-menu]').remove()" style="
@@ -2911,11 +2989,11 @@ let PluginEntryPointMain = function () {
                                     border-radius: 6px;
                                     cursor: pointer;
                                     font-size: 14px;
-                                ">إغلاق</button>
+                                ">${i("generic.close")}</button>
                             </div>
                         `;
                         if (state.status === 'failed') {
-                            mPhpMasterNotification.error(state.error || 'فشل في تثبيت الإصلاح');
+                            mPhpMasterNotification.error(state.error || i("fixes.installFailedGeneric"));
                         }
                         break;
                     }
@@ -2924,7 +3002,7 @@ let PluginEntryPointMain = function () {
                 body.innerHTML = `
                     <div style="text-align: center; padding: 40px; position: relative; z-index: 1;">
                         <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
-                        <div style="color: #f44336; font-size: 18px;">خطأ غير متوقع</div>
+                        <div style="color: #f44336; font-size: 18px;">${i("fixes.unexpectedError")}</div>
                         <div style="color: #8b929a; font-size: 13px; margin: 10px 0;">${String(err)}</div>
                     </div>
                 `;
@@ -3172,7 +3250,7 @@ let PluginEntryPointMain = function () {
             // التحقق من تثبيت اللعبة أولاً
             let gameInstallPath = null;
             let searchBtnElement = null;
-            downloadBtn.innerHTML = `<span style="font-size: 22px;">⏳</span><span>جاري التحقق...</span>`;
+            downloadBtn.innerHTML = `<span style="font-size: 22px;">⏳</span><span>${i("activations.checkingInstall")}</span>`;
             downloadBtn.disabled = true;
             downloadBtn.style.opacity = "0.7";
             downloadBtn.style.cursor = "not-allowed";
@@ -3200,7 +3278,7 @@ let PluginEntryPointMain = function () {
                         transition: all 0.3s ease;
                         box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
                     `;
-                searchBtnElement.innerHTML = `<span style="font-size: 20px;">🔍</span><span>البحث عن اللعبة في جميع الأقراص</span>`;
+                searchBtnElement.innerHTML = `<span style="font-size: 20px;">🔍</span><span>${i("activations.searchAllDrives")}</span>`;
 
                 searchBtnElement.onmouseenter = () => {
                     searchBtnElement.style.transform = "translateY(-2px)";
@@ -3213,17 +3291,17 @@ let PluginEntryPointMain = function () {
 
                 searchBtnElement.onclick = async () => {
                     searchBtnElement.disabled = true;
-                    searchBtnElement.innerHTML = `<span style="font-size: 20px;">⏳</span><span>جاري البحث في جميع الأقراص...</span>`;
+                    searchBtnElement.innerHTML = `<span style="font-size: 20px;">⏳</span><span>${i("activations.searchingAllDrives")}</span>`;
                     searchBtnElement.style.opacity = "0.7";
 
                     try {
                         const searchResult = await l("SearchGameInAllDrives", { appid: currentAppId });
                         if (searchResult?.success && searchResult?.installPath) {
                             gameInstallPath = searchResult.installPath;
-                            mPhpMasterNotification.success(`تم العثور على اللعبة في: ${gameInstallPath}`, "Steam Tools");
+                            mPhpMasterNotification.success(i("activations.foundInPath", { path: gameInstallPath }), "Steam Tools");
 
                             // تحديث زر التحميل
-                            downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>تحميل ملفات التفعيل</span>`;
+                            downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>${i("activations.downloadActivationFiles")}</span>`;
                             downloadBtn.disabled = false;
                             downloadBtn.style.opacity = "1";
                             downloadBtn.style.cursor = "pointer";
@@ -3233,14 +3311,14 @@ let PluginEntryPointMain = function () {
                             // إخفاء زر البحث
                             searchBtnElement.style.display = "none";
                         } else {
-                            mPhpMasterNotification.error(searchResult?.error || "لم يتم العثور على اللعبة في أي قرص");
-                            searchBtnElement.innerHTML = `<span style="font-size: 20px;">🔍</span><span>البحث مرة أخرى</span>`;
+                            mPhpMasterNotification.error(searchResult?.error || i("activations.gameNotFoundAnyDrive"));
+                            searchBtnElement.innerHTML = `<span style="font-size: 20px;">🔍</span><span>${i("activations.searchAgain")}</span>`;
                             searchBtnElement.disabled = false;
                             searchBtnElement.style.opacity = "1";
                         }
                     } catch (err) {
-                        mPhpMasterNotification.error("حدث خطأ أثناء البحث: " + String(err));
-                        searchBtnElement.innerHTML = `<span style="font-size: 20px;">🔍</span><span>البحث مرة أخرى</span>`;
+                        mPhpMasterNotification.error(i("activations.searchError", { error: String(err) }));
+                        searchBtnElement.innerHTML = `<span style="font-size: 20px;">🔍</span><span>${i("activations.searchAgain")}</span>`;
                         searchBtnElement.disabled = false;
                         searchBtnElement.style.opacity = "1";
                     }
@@ -3254,14 +3332,14 @@ let PluginEntryPointMain = function () {
                     const pathResult = await l("GetGameInstallPath", { appid: currentAppId });
                     if (pathResult?.success && pathResult?.installPath) {
                         gameInstallPath = pathResult.installPath;
-                        downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>تحميل ملفات التفعيل</span>`;
+                        downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>${i("activations.downloadActivationFiles")}</span>`;
                         downloadBtn.disabled = false;
                         downloadBtn.style.opacity = "1";
                         downloadBtn.style.cursor = "pointer";
                     } else {
                         // إذا كانت اللعبة تحتاج بحث خاص، ابحث تلقائياً
                         if (needsSearch) {
-                            downloadBtn.innerHTML = `<span style="font-size: 22px;">🔍</span><span>جاري البحث في جميع الأقراص...</span>`;
+                            downloadBtn.innerHTML = `<span style="font-size: 22px;">🔍</span><span>${i("activations.searchingAllDrives")}</span>`;
                             downloadBtn.style.background = "linear-gradient(135deg, #ff9800 0%, #f57c00 100%)";
                             downloadBtn.style.boxShadow = "0 4px 15px rgba(255, 152, 0, 0.3)";
 
@@ -3269,22 +3347,22 @@ let PluginEntryPointMain = function () {
                                 const searchResult = await l("SearchGameInAllDrives", { appid: currentAppId });
                                 if (searchResult?.success && searchResult?.installPath) {
                                     gameInstallPath = searchResult.installPath;
-                                    mPhpMasterNotification.success(`تم العثور على اللعبة في: ${gameInstallPath}`, "Steam Tools");
-                                    downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>تحميل ملفات التفعيل</span>`;
+                                    mPhpMasterNotification.success(i("activations.foundInPath", { path: gameInstallPath }), "Steam Tools");
+                                    downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>${i("activations.downloadActivationFiles")}</span>`;
                                     downloadBtn.disabled = false;
                                     downloadBtn.style.opacity = "1";
                                     downloadBtn.style.cursor = "pointer";
                                     downloadBtn.style.background = "linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%)";
                                     downloadBtn.style.boxShadow = "0 4px 15px rgba(156, 39, 176, 0.3)";
                                 } else {
-                                    downloadBtn.innerHTML = `<span style="font-size: 22px;">🚫</span><span>لم يتم العثور على اللعبة</span>`;
+                                    downloadBtn.innerHTML = `<span style="font-size: 22px;">🚫</span><span>${i("activations.gameNotFound")}</span>`;
                                     downloadBtn.style.background = "linear-gradient(135deg, #666 0%, #444 100%)";
                                     downloadBtn.style.boxShadow = "none";
                                     downloadBtn.style.cursor = "not-allowed";
                                     createSearchButton(); // أضف زر للبحث يدوياً
                                 }
                             } catch (searchErr) {
-                                downloadBtn.innerHTML = `<span style="font-size: 22px;">🚫</span><span>فشل البحث</span>`;
+                                downloadBtn.innerHTML = `<span style="font-size: 22px;">🚫</span><span>${i("activations.searchFailed")}</span>`;
                                 downloadBtn.style.background = "linear-gradient(135deg, #666 0%, #444 100%)";
                                 downloadBtn.style.boxShadow = "none";
                                 downloadBtn.style.cursor = "not-allowed";
@@ -3295,7 +3373,7 @@ let PluginEntryPointMain = function () {
                                 downloadBtn.innerHTML = `<span style="font-size: 22px;">⏳</span><span>${i("activations.comingSoon")}</span>`;
                                 downloadBtn.style.background = "linear-gradient(135deg, #ff9800 0%, #f57c00 100%)";
                             } else {
-                                downloadBtn.innerHTML = `<span style="font-size: 22px;">🚫</span><span>اللعبة غير مثبتة</span>`;
+                                downloadBtn.innerHTML = `<span style="font-size: 22px;">🚫</span><span>${i("activations.gameNotInstalled")}</span>`;
                                 downloadBtn.style.background = "linear-gradient(135deg, #666 0%, #444 100%)";
                             }
                             downloadBtn.style.boxShadow = "none";
@@ -3305,29 +3383,29 @@ let PluginEntryPointMain = function () {
                 } catch (e) {
                     // إذا كانت اللعبة تحتاج بحث خاص، ابحث تلقائياً
                     if (needsSearch) {
-                        downloadBtn.innerHTML = `<span style="font-size: 22px;">🔍</span><span>جاري البحث في جميع الأقراص...</span>`;
+                        downloadBtn.innerHTML = `<span style="font-size: 22px;">🔍</span><span>${i("activations.searchingAllDrives")}</span>`;
                         downloadBtn.style.background = "linear-gradient(135deg, #ff9800 0%, #f57c00 100%)";
 
                         try {
                             const searchResult = await l("SearchGameInAllDrives", { appid: currentAppId });
                             if (searchResult?.success && searchResult?.installPath) {
                                 gameInstallPath = searchResult.installPath;
-                                mPhpMasterNotification.success(`تم العثور على اللعبة في: ${gameInstallPath}`, "Steam Tools");
-                                downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>تحميل ملفات التفعيل</span>`;
+                                mPhpMasterNotification.success(i("activations.foundInPath", { path: gameInstallPath }), "Steam Tools");
+                                downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>${i("activations.downloadActivationFiles")}</span>`;
                                 downloadBtn.disabled = false;
                                 downloadBtn.style.opacity = "1";
                                 downloadBtn.style.cursor = "pointer";
                                 downloadBtn.style.background = "linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%)";
                                 downloadBtn.style.boxShadow = "0 4px 15px rgba(156, 39, 176, 0.3)";
                             } else {
-                                downloadBtn.innerHTML = `<span style="font-size: 22px;">🚫</span><span>لم يتم العثور على اللعبة</span>`;
+                                downloadBtn.innerHTML = `<span style="font-size: 22px;">🚫</span><span>${i("activations.gameNotFound")}</span>`;
                                 downloadBtn.style.background = "linear-gradient(135deg, #666 0%, #444 100%)";
                                 downloadBtn.style.boxShadow = "none";
                                 downloadBtn.style.cursor = "not-allowed";
                                 createSearchButton();
                             }
                         } catch (searchErr) {
-                            downloadBtn.innerHTML = `<span style="font-size: 22px;">🚫</span><span>فشل البحث</span>`;
+                            downloadBtn.innerHTML = `<span style="font-size: 22px;">🚫</span><span>${i("activations.searchFailed")}</span>`;
                             downloadBtn.style.background = "linear-gradient(135deg, #666 0%, #444 100%)";
                             downloadBtn.style.boxShadow = "none";
                             downloadBtn.style.cursor = "not-allowed";
@@ -3338,7 +3416,7 @@ let PluginEntryPointMain = function () {
                             downloadBtn.innerHTML = `<span style="font-size: 22px;">⏳</span><span>${i("activations.comingSoon")}</span>`;
                             downloadBtn.style.background = "linear-gradient(135deg, #ff9800 0%, #f57c00 100%)";
                         } else {
-                            downloadBtn.innerHTML = `<span style="font-size: 22px;">🚫</span><span>اللعبة غير مثبتة</span>`;
+                            downloadBtn.innerHTML = `<span style="font-size: 22px;">🚫</span><span>${i("activations.gameNotInstalled")}</span>`;
                             downloadBtn.style.background = "linear-gradient(135deg, #666 0%, #444 100%)";
                         }
                         downloadBtn.style.boxShadow = "none";
@@ -3362,19 +3440,19 @@ let PluginEntryPointMain = function () {
 
             downloadBtn.onclick = async () => {
                 if (!gameInstallPath) {
-                    mPhpMasterNotification.error("اللعبة غير مثبتة. قم بتثبيت اللعبة أولاً.");
+                    mPhpMasterNotification.error(i("activations.installFirst"));
                     return;
                 }
 
                 downloadBtn.disabled = true;
-                downloadBtn.innerHTML = `<span style="font-size: 22px;">⏳</span><span>جاري التحميل...</span>`;
+                downloadBtn.innerHTML = `<span style="font-size: 22px;">⏳</span><span>${i("status.downloading")}</span>`;
                 downloadBtn.style.opacity = "0.7";
 
                 try {
                     // Start download
                     const result = await l("DownloadActivationFiles", { appid: currentAppId, installPath: gameInstallPath });
                     if (result?.success) {
-                        mPhpMasterNotification.info("جاري تحميل ملفات التفعيل...", "Steam Tools");
+                        mPhpMasterNotification.info(i("activations.activationFilesDownloading"), "Steam Tools");
 
                         // Poll for status
                         const checkStatus = async () => {
@@ -3382,33 +3460,33 @@ let PluginEntryPointMain = function () {
                             const state = status?.state || {};
 
                             if (state.status === "done") {
-                                mPhpMasterNotification.success("تم تثبيت ملفات التفعيل بنجاح!", "Steam Tools");
+                                mPhpMasterNotification.success(i("activations.activationFilesInstalled"), "Steam Tools");
                                 downloadBtn.disabled = false;
-                                downloadBtn.innerHTML = `<span style="font-size: 22px;">✅</span><span>تم التثبيت بنجاح!</span>`;
+                                downloadBtn.innerHTML = `<span style="font-size: 22px;">✅</span><span>${i("activations.installedSuccess")}</span>`;
                                 downloadBtn.style.background = "linear-gradient(135deg, #4caf50 0%, #388e3c 100%)";
                                 downloadBtn.style.opacity = "1";
                             } else if (state.status === "failed" || state.status === "cancelled") {
-                                mPhpMasterNotification.error(state.error || "فشل التحميل");
+                                mPhpMasterNotification.error(state.error || i("status.failed"));
                                 downloadBtn.disabled = false;
-                                downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>تحميل ملفات التفعيل</span>`;
+                                downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>${i("activations.downloadActivationFiles")}</span>`;
                                 downloadBtn.style.opacity = "1";
                             } else {
-                                const progressText = state.status === "extracting" ? "جاري الاستخراج..." : "جاري التحميل...";
+                                const progressText = state.status === "extracting" ? i("activations.extracting") : i("status.downloading");
                                 downloadBtn.innerHTML = `<span style="font-size: 22px;">⏳</span><span>${progressText}</span>`;
                                 setTimeout(checkStatus, 500);
                             }
                         };
                         setTimeout(checkStatus, 500);
                     } else {
-                        mPhpMasterNotification.error(result?.error || "فشل بدء التحميل");
+                        mPhpMasterNotification.error(result?.error || i("activations.downloadStartFailed"));
                         downloadBtn.disabled = false;
-                        downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>تحميل ملفات التفعيل</span>`;
+                        downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>${i("activations.downloadActivationFiles")}</span>`;
                         downloadBtn.style.opacity = "1";
                     }
                 } catch (err) {
                     mPhpMasterNotification.error(String(err));
                     downloadBtn.disabled = false;
-                    downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>تحميل ملفات التفعيل</span>`;
+                    downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>${i("activations.downloadActivationFiles")}</span>`;
                     downloadBtn.style.opacity = "1";
                 }
             };

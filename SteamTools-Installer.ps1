@@ -14,8 +14,8 @@
 #   6. Install Steamtools
 #   7. Install Steam Tools Plugin (mPhpMaster)
 #   8. Clean Steam cache
-#   9. Launch Steam & Enable Plugin
-#   10. Install Millennium Framework
+#   9. Install Millennium Framework
+#   10. Launch Steam & Enable Plugin
 # ================================================
 
 # Set UTF-8 encoding
@@ -122,11 +122,13 @@ try {
         Add-MpPreference -ExclusionPath $steamPath -ErrorAction SilentlyContinue
         Write-Host " Added" -ForegroundColor Green
         Write-Host "        Steam folder added to exclusions" -ForegroundColor DarkGray
-    } else {
+    }
+    else {
         Write-Host " OK" -ForegroundColor Green
         Write-Host "        Already in exclusions" -ForegroundColor DarkGray
     }
-} catch {
+}
+catch {
     Write-Host " SKIPPED" -ForegroundColor Yellow
     Write-Host "        Could not modify Defender settings" -ForegroundColor DarkGray
 }
@@ -143,7 +145,8 @@ if ($steamProcesses) {
     $steamProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
     Start-Sleep -Seconds 2
     Write-Host "        Done!" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host " OK" -ForegroundColor Green
 }
 Write-Host ""
@@ -158,7 +161,8 @@ if (Test-Path $steamCfgPath) {
     Remove-Item -Path $steamCfgPath -Force -ErrorAction SilentlyContinue
     Write-Host " Removed" -ForegroundColor Green
     Write-Host "        Update blocker removed" -ForegroundColor DarkGray
-} else {
+}
+else {
     Write-Host " OK" -ForegroundColor Green
     Write-Host "        No blocker found" -ForegroundColor DarkGray
 }
@@ -219,7 +223,8 @@ if (Test-Path $pluginsPath -PathType Container) {
                     Remove-Item $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
                     Write-Host "        Removed old plugin: $($manifest.name)" -ForegroundColor DarkGray
                 }
-            } catch {}
+            }
+            catch {}
         }
     }
 }
@@ -235,7 +240,8 @@ $steamtoolsPath = Join-Path $steamPath "xinput1_4.dll"
 
 if (Test-Path $steamtoolsPath) {
     Write-Host " Already installed" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host ""
     Write-Host "        Downloading Steamtools..." -ForegroundColor DarkGray
     
@@ -262,10 +268,12 @@ if (Test-Path $steamtoolsPath) {
 
         if (Test-Path $steamtoolsPath) {
             Write-Host "        Steamtools installed!" -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Host "        Steamtools installation failed!" -ForegroundColor Red
         }
-    } catch {
+    }
+    catch {
         Write-Host "        Steamtools installation failed: $_" -ForegroundColor Red
     }
 }
@@ -310,7 +318,8 @@ try {
     if ($extractedItems.Count -eq 1 -and $extractedItems[0].PSIsContainer) {
         $innerFolder = $extractedItems[0].FullName
         Move-Item -Path $innerFolder -Destination $pluginPath -Force
-    } else {
+    }
+    else {
         Move-Item -Path $tempExtract -Destination $pluginPath -Force
     }
     
@@ -319,7 +328,8 @@ try {
     Remove-Item $tempExtract -Recurse -Force -ErrorAction SilentlyContinue
     
     Write-Host "        Plugin installed!" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "        Plugin installation failed: $_" -ForegroundColor Red
 }
 Write-Host ""
@@ -367,36 +377,9 @@ Write-Host "        Cache cleaned! (Backup: $backupPath)" -ForegroundColor Green
 Write-Host ""
 
 # ============================================
-# STEP 9: Launch Steam & Enable Plugin
+# STEP 9: Install Millennium Framework
 # ============================================
-Write-Host "  [9/10] Starting Steam & Enabling Plugin..." -ForegroundColor Yellow
-
-# Enable plugin in config if exists
-$millenniumConfigPath = Join-Path $steamPath "ext\config.json"
-if (Test-Path $millenniumConfigPath) {
-    try {
-        $config = Get-Content $millenniumConfigPath -Raw | ConvertFrom-Json
-        
-        if (-not $config.PSObject.Properties['plugins']) {
-            $config | Add-Member -NotePropertyName 'plugins' -NotePropertyValue @{} -Force
-        }
-        
-        $config.plugins | Add-Member -NotePropertyName $pluginName -NotePropertyValue $true -Force
-        $config | ConvertTo-Json -Depth 10 | Set-Content $millenniumConfigPath -Encoding UTF8
-        Write-Host "        Plugin enabled in config!" -ForegroundColor Green
-    } catch {
-        Write-Host "        Could not modify config file: $_" -ForegroundColor Yellow
-    }
-}
-
-Write-Host "        Launching Steam..." -ForegroundColor DarkGray
-Start-Process -FilePath $steamExePath -ArgumentList "-clearbeta"
-Write-Host ""
-
-# ============================================
-# STEP 10: Install Millennium Framework
-# ============================================
-Write-Host "  [10/10] Installing Millennium Framework..." -ForegroundColor Yellow
+Write-Host "  [9/10] Installing Millennium Framework..." -ForegroundColor Yellow
 
 # Close Steam before Millennium installation
 Write-Host "        Closing Steam..." -ForegroundColor DarkGray
@@ -422,7 +405,8 @@ try {
     
     if ($process.ExitCode -eq 0) {
         Write-Host "        Millennium installed successfully!" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "        Millennium installation completed (Exit code: $($process.ExitCode))" -ForegroundColor Yellow
     }
     
@@ -431,10 +415,39 @@ try {
     
     # Wait a moment after installation
     Start-Sleep -Seconds 2
-} catch {
+}
+catch {
     Write-Host "        Millennium installation failed: $_" -ForegroundColor Red
     Write-Host "        You may need to install Millennium manually" -ForegroundColor Yellow
 }
+Write-Host ""
+
+# ============================================
+# STEP 10: Launch Steam & Enable Plugin
+# ============================================
+Write-Host "  [10/10] Starting Steam & Enabling Plugin..." -ForegroundColor Yellow
+
+# Enable plugin in config if exists
+$millenniumConfigPath = Join-Path $steamPath "ext\config.json"
+if (Test-Path $millenniumConfigPath) {
+    try {
+        $config = Get-Content $millenniumConfigPath -Raw | ConvertFrom-Json
+        
+        if (-not $config.PSObject.Properties['plugins']) {
+            $config | Add-Member -NotePropertyName 'plugins' -NotePropertyValue @{} -Force
+        }
+        
+        $config.plugins | Add-Member -NotePropertyName $pluginName -NotePropertyValue $true -Force
+        $config | ConvertTo-Json -Depth 10 | Set-Content $millenniumConfigPath -Encoding UTF8
+        Write-Host "        Plugin enabled in config!" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "        Could not modify config file: $_" -ForegroundColor Yellow
+    }
+}
+
+Write-Host "        Launching Steam..." -ForegroundColor DarkGray
+Start-Process -FilePath $steamExePath -ArgumentList "-clearbeta"
 Write-Host ""
 
 # ============================================
