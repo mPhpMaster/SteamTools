@@ -11,19 +11,42 @@
         "addByAppId": "Add Game"
     },
     "addByAppId": {
+        "button": "Add Game",
+        "warning": "This feature is only for games unavailable in your region<br>or removed from the <span class=\"steam-highlight\">Steam</span> store",
         "title": "Add Game by AppID",
         "inputLabel": "Enter the game's AppID:",
-        "placeholder": "Example: 730",
-        "hint": "You can find the AppID from the game's Steam URL",
+        "placeholder": "Enter game AppID",
+        "hint": "You can find the AppID from SteamDB",
         "submit": "Add Game",
         "adding": "Adding...",
         "checking": "Checking...",
-        "checkingAvailability": "Checking game availability...",
+        "checkingAvailability": "Checking availability...",
         "available": "Game available! Starting download...",
         "notAvailable": "Game not available in the database",
+        "searchSteamDb": "Search on SteamDB",
+        "restartSteam": "Restart Steam",
+        "later": "Later",
+        "addedSuccess": "Game added successfully!",
+        "done": "Completed",
+        "error": "Error",
+        "gameUnavailable": "Game is currently unavailable",
+        "startingDownload": "Starting download...",
+        "downloadingGame": "Downloading game...",
+        "processing": "Processing...",
+        "extracting": "Extracting files...",
+        "installing": "Installing...",
+        "downloadFailed": "Download failed",
+        "unknownError": "Unknown error occurred",
+        "restarting": "Restarting...",
         "success": "Game addition started! You can track progress from the game page.",
         "errorEmpty": "Please enter an AppID",
         "errorInvalid": "Invalid AppID - must be a positive number"
+    },
+    "welcome": {
+        "title": "👋 Welcome to Steam Tools",
+        "textLine1": "Thanks for using Steam Tools",
+        "textLine2": "🎮 We hope you enjoy your experience!",
+        "start": "🚀 Let's start"
     },
     "welcomeTitle": "👋 Welcome",
     "status": {
@@ -45,6 +68,7 @@
         "gameRemoved": "Game has been removed.",
         "downloadStarted": "Download started...",
         "steamRestarting": "Steam is restarting...",
+        "restartRequired": "Steam must be restarted for the game to appear",
         "dlcTitle": "⚠️ Downloadable Content (DLC)",
         "dlcWarning": "You cannot add DLC separately.\n\nWhen adding the base game, you will get all DLCs with it automatically."
     },
@@ -61,6 +85,7 @@
         "ubisoftHeader": "Ubisoft Activation",
         "tokenReqContent": "token_req.txt content:",
         "copyFile": "Copy File",
+        "copyTooltip": "Copy the token_req.txt file itself to clipboard (for sharing in Discord or folders)",
         "copySuccess": "File Copied",
         "copyFail": "Copy Failed",
         "ubisoftEnterToken": "Enter token to create token.ini",
@@ -122,7 +147,45 @@
     },
     "generic": {
         "error": "Error",
-        "close": "Close"
+        "close": "Close",
+        "empty": "(Empty)"
+    },
+    "xinput": {
+        "repairLibrary": "Repair Library",
+        "executing": "Executing...",
+        "repairedRestarting": "Fixed! Restarting...",
+        "repairSuccess": "Repair completed successfully",
+        "repairFailed": "Repair failed",
+        "repairStartFailed": "Failed to start repair"
+    },
+    "restartPopup": {
+        "message": "Steam must be restarted for the game to appear",
+        "restart": "Restart Steam",
+        "later": "Later",
+        "restarting": "Restarting...",
+        "restartFailed": "Failed to restart Steam",
+        "errorTitle": "Error"
+    },
+    "notificationDefaults": {
+        "success": "Success",
+        "error": "Error",
+        "warning": "Warning",
+        "info": "Steam Tools"
+    },
+    "autoUpdate": {
+        "downloading": "Downloading update...",
+        "invalidResponse": "Invalid response from server",
+        "updatedRestarting": "Updated to {version}! Restarting Steam...",
+        "unknownError": "Unknown error",
+        "updateFailed": "Update failed: {error}",
+        "autoUpdateFailed": "Auto update failed: {error}"
+    },
+    "updatePopup": {
+        "title": "🎉 New Update Available!",
+        "message": "Version {version} is now available!",
+        "updateNow": "Update Now",
+        "later": "Later",
+        "restartingSteam": "Restarting Steam..."
     },
     "update": {
         "checking": "Checking for updates...",

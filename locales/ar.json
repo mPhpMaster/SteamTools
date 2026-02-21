@@ -11,19 +11,42 @@
     "addByAppId": "إضافة لعبة"
   },
   "addByAppId": {
+    "button": "إضافة لعبة",
+    "warning": "هذه الميزة مخصصة فقط للألعاب غير المتوفرة في بلدك<br>أو المحذوفة من متجر <span class=\"steam-highlight\">Steam</span>",
     "title": "إضافة لعبة بـ AppID",
     "inputLabel": "أدخل AppID الخاص باللعبة:",
-    "placeholder": "مثال: 730",
-    "hint": "يمكنك إيجاد AppID من رابط اللعبة على Steam",
+    "placeholder": "أدخل AppID اللعبة",
+    "hint": "يتم استخراج AppID من موقع SteamDB",
     "submit": "إضافة اللعبة",
     "adding": "جاري الإضافة...",
     "checking": "جاري التحقق...",
-    "checkingAvailability": "جاري التحقق من توفر اللعبة...",
+    "checkingAvailability": "جاري التحقق من التوفر...",
     "available": "اللعبة متوفرة! جاري بدء التحميل...",
     "notAvailable": "اللعبة غير متوفرة حالياً في قاعدة البيانات",
+    "searchSteamDb": "البحث في SteamDB",
+    "restartSteam": "إعادة تشغيل Steam",
+    "later": "لاحقاً",
+    "addedSuccess": "تمت إضافة اللعبة بنجاح!",
+    "done": "اكتمل",
+    "error": "حدث خطأ",
+    "gameUnavailable": "اللعبة غير متوفرة حالياً",
+    "startingDownload": "جاري بدء التحميل...",
+    "downloadingGame": "جاري تحميل اللعبة...",
+    "processing": "جاري المعالجة...",
+    "extracting": "جاري استخراج الملفات...",
+    "installing": "جاري التثبيت...",
+    "downloadFailed": "فشل التحميل",
+    "unknownError": "حدث خطأ غير معروف",
+    "restarting": "جاري إعادة التشغيل...",
     "success": "تم بدء إضافة اللعبة! يمكنك متابعة التقدم من صفحة اللعبة.",
     "errorEmpty": "الرجاء إدخال AppID",
     "errorInvalid": "AppID غير صالح - يجب أن يكون رقماً صحيحاً"
+  },
+  "welcome": {
+    "title": "👋 Steam Tools هلا وسهلا بك في",
+    "textLine1": "Steam Tools شكراً لاستخدامك أداة",
+    "textLine2": "🎮 نتمنى لك تجربة ممتعة!",
+    "start": "🚀 يلا نبدأ"
   },
   "welcomeTitle": "👋 مرحباً",
   "status": {
@@ -45,6 +68,7 @@
     "gameRemoved": "تم حذف اللعبة.",
     "downloadStarted": "بدأ التحميل...",
     "steamRestarting": "...Steam جاري إعادة تشغيل",
+    "restartRequired": "يجب إعادة تشغيل Steam لتظهر اللعبة",
     "dlcTitle": "⚠️ (DLC) محتوى إضافي",
     "dlcWarning": "DLC لا يمكنك إضافة بشكل منفصل.\n\nعند إضافة اللعبة الأساسية، ستحصل على جميع الإضافات معها تلقائياً."
   },
@@ -61,6 +85,7 @@
     "ubisoftHeader": "Ubisoft تفعيل لعبة",
     "tokenReqContent": ":token_req.txt محتوى",
     "copyFile": "نسخ الملف",
+    "copyTooltip": "نسخ ملف token_req.txt نفسه للحافظة (للصق في ديسكورد أو المجلدات)",
     "copySuccess": "تم نسخ الملف",
     "copyFail": "فشل النسخ",
     "ubisoftEnterToken": "token.ini أدخل التوكن لإنشاء",
@@ -122,7 +147,45 @@
   },
   "generic": {
     "error": "خطأ",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "empty": "(فارغ)"
+  },
+  "xinput": {
+    "repairLibrary": "اصلاح المكتبة",
+    "executing": "جاري التنفيذ...",
+    "repairedRestarting": "تم الاصلاح! جاري إعادة التشغيل...",
+    "repairSuccess": "تمت عملية الإصلاح بنجاح",
+    "repairFailed": "فشل الإصلاح",
+    "repairStartFailed": "فشل بدء الإصلاح"
+  },
+  "restartPopup": {
+    "message": "يجب إعادة تشغيل Steam لتظهر اللعبة",
+    "restart": "إعادة تشغيل Steam",
+    "later": "لاحقاً",
+    "restarting": "جاري إعادة التشغيل...",
+    "restartFailed": "فشل إعادة تشغيل Steam",
+    "errorTitle": "خطأ"
+  },
+  "notificationDefaults": {
+    "success": "نجاح",
+    "error": "خطأ",
+    "warning": "تحذير",
+    "info": "Steam Tools"
+  },
+  "autoUpdate": {
+    "downloading": "جاري تحميل التحديث...",
+    "invalidResponse": "استجابة غير صالحة من الخادم",
+    "updatedRestarting": "تم التحديث إلى {version}! جاري إعادة تشغيل Steam...",
+    "unknownError": "خطأ غير معروف",
+    "updateFailed": "فشل التحديث: {error}",
+    "autoUpdateFailed": "فشل التحديث التلقائي: {error}"
+  },
+  "updatePopup": {
+    "title": "🎉 يتوفر تحديث جديد!",
+    "message": "الإصدار {version} متاح الآن!",
+    "updateNow": "تحديث الآن",
+    "later": "لاحقاً",
+    "restartingSteam": "جاري إعادة تشغيل Steam..."
   },
   "update": {
     "checking": "جاري البحث عن تحديثات...",

@@ -86,7 +86,7 @@ function compareVersions(a, b) {
 // Perform automatic update
 async function performAutoUpdate(updateInfo) {
     // Show updating notification
-    showAutoUpdateProgress('Downloading update...', 'downloading');
+    showAutoUpdateProgress(mphpmasterI('autoUpdate.downloading'), 'downloading');
 
     try {
         // Call backend to download and extract update
@@ -98,22 +98,22 @@ async function performAutoUpdate(updateInfo) {
             parsed = typeof result === 'string' ? JSON.parse(result) : result;
         } catch (parseErr) {
             console.error("[SteamTools] Failed to parse result:", parseErr);
-            parsed = { success: false, error: 'Invalid response from server' };
+            parsed = { success: false, error: mphpmasterI('autoUpdate.invalidResponse') };
         }
 
         if (parsed && parsed.success) {
-            showAutoUpdateProgress(`Updated to ${updateInfo.version}! Restarting Steam...`, 'success');
+            showAutoUpdateProgress(mphpmasterI('autoUpdate.updatedRestarting', { version: updateInfo.version }), 'success');
 
             // Wait 2 seconds then restart Steam
             await new Promise(r => setTimeout(r, 2000));
             await Millennium.callServerMethod("SteamTools", "RestartSteam", {});
         } else {
-            const errorMsg = parsed?.error || parsed?.message || 'Unknown error';
-            showAutoUpdateProgress(`Update failed: ${errorMsg}`, 'error');
+            const errorMsg = parsed?.error || parsed?.message || mphpmasterI('autoUpdate.unknownError');
+            showAutoUpdateProgress(mphpmasterI('autoUpdate.updateFailed', { error: errorMsg }), 'error');
         }
     } catch (e) {
         console.error("[SteamTools] Auto update failed:", e);
-        showAutoUpdateProgress(`Auto update failed: ${e.message || e}`, 'error');
+        showAutoUpdateProgress(mphpmasterI('autoUpdate.autoUpdateFailed', { error: e.message || e }), 'error');
     }
 }
 
@@ -125,6 +125,8 @@ function showAutoUpdateProgress(message, status) {
 
     const notification = document.createElement('div');
     notification.id = 'mphpmaster-auto-update-notification';
+    notification.setAttribute('dir', mphpmasterDir());
+    const isRTL = mphpmasterIsRTL();
 
     const statusColors = {
         downloading: { bg: '#1a3d5c', border: '#00d4ff', icon: '⏳' },
@@ -138,7 +140,7 @@ function showAutoUpdateProgress(message, status) {
             #mphpmaster-auto-update-notification {
                 position: fixed;
                 top: 20px;
-                right: 20px;
+                ${isRTL ? 'left' : 'right'}: 20px;
                 background: linear-gradient(135deg, ${colors.bg} 0%, #0a0a15 100%);
                 border: 2px solid ${colors.border};
                 border-radius: 12px;
@@ -191,19 +193,21 @@ function showAutoUpdateProgress(message, status) {
 
 // Show update notification (manual option if auto update is disabled)
 function showUpdateNotification(updateInfo) {
-    const title = '🎉 New Update Available!';
-    const message = `Version ${updateInfo.version} is now available!`;
-    const updateBtn = 'Update Now';
-    const laterBtn = 'Later';
+    const title = mphpmasterI('updatePopup.title');
+    const message = mphpmasterI('updatePopup.message', { version: updateInfo.version });
+    const updateBtn = mphpmasterI('updatePopup.updateNow');
+    const laterBtn = mphpmasterI('updatePopup.later');
 
     const notification = document.createElement('div');
     notification.id = 'mphpmaster-update-notification';
+    notification.setAttribute('dir', mphpmasterDir());
+    const isRTL = mphpmasterIsRTL();
     notification.innerHTML = `
         <style>
             #mphpmaster-update-notification {
                 position: fixed;
                 top: 20px;
-                right: 20px;
+                ${isRTL ? 'left' : 'right'}: 20px;
                 background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
                 border: 2px solid #00d4ff;
                 border-radius: 16px;
@@ -213,7 +217,7 @@ function showUpdateNotification(updateInfo) {
                 box-shadow: 0 8px 32px rgba(0, 212, 255, 0.3), 0 0 60px rgba(0, 212, 255, 0.1);
                 animation: mphpmasterUpdateSlideIn 0.5s ease-out;
                 max-width: 350px;
-                direction: ltr;
+                direction: inherit;
             }
             @keyframes mphpmasterUpdateSlideIn {
                 from { transform: translateX(100px); opacity: 0; }
@@ -299,7 +303,7 @@ function showUpdateNotification(updateInfo) {
         </style>
         <button class="mphpmaster-update-close" onclick="this.parentElement.remove()">×</button>
         <div class="mphpmaster-update-header">
-            <img src="${MPHPMASTER_LOGO_URL}" class="mphpmaster-update-logo" alt="Steam Tools">
+            <img src="${MPHPMASTER_LOGO_URL}" class="mphpmaster-update-logo" alt="${mphpmasterI('notificationDefaults.info')}">
             <h3 class="mphpmaster-update-title">${title}</h3>
         </div>
         <div class="mphpmaster-update-version">${MPHPMASTER_CURRENT_VERSION} → ${updateInfo.version}</div>
@@ -319,7 +323,7 @@ function showUpdateNotification(updateInfo) {
     // Add click handler for update button - restart Steam only
     document.getElementById('mphpmaster-update-now-btn').onclick = async function () {
         this.disabled = true;
-        this.textContent = 'Restarting Steam...';
+        this.textContent = mphpmasterI('updatePopup.restartingSteam');
         try {
             await Millennium.callServerMethod("mPhpMaster", "RestartSteam", {});
         } catch (e) {
@@ -351,6 +355,10 @@ function showUpdateNotification(updateInfo) {
             await performAutoUpdate(updateInfo);
         } else {
             // Show manual update notification
+            const title = mphpmasterI('updatePopup.title');
+            const message = mphpmasterI('updatePopup.message', { version: updateInfo.version });
+            const updateBtn = mphpmasterI('updatePopup.updateNow');
+            const laterBtn = mphpmasterI('updatePopup.later');
             showUpdateNotification(updateInfo);
         }
     } else {
@@ -362,9 +370,475 @@ function showUpdateNotification(updateInfo) {
 // ==================== WELCOME MESSAGE (FIRST RUN ONLY) ====================
 const MPHPMASTER_FIRST_RUN_KEY = 'mphpmaster_welcomed';
 
+const MPHPMASTER_TOP_LOCALES = {
+    en: {
+        btn: {
+            add: "Add using mPhpMaster",
+            addSoftware: "Add Software to Library",
+            remove: "Remove using mPhpMaster",
+            loading: "Loading...",
+            removing: "Removing...",
+            cancel: "Cancel",
+            restartSteam: "Restart Steam",
+            openMenu: "Steam Tools",
+            addByAppId: "Add Game"
+        },
+        addByAppId: {
+            button: "Add Game",
+            warning: "This feature is only for games unavailable in your region<br>or removed from the <span class=\"steam-highlight\">Steam</span> store",
+            title: "Add Game by AppID",
+            inputLabel: "Enter the game's AppID:",
+            placeholder: "Enter game AppID",
+            hint: "You can find the AppID from SteamDB",
+            submit: "Add Game",
+            adding: "Adding...",
+            checking: "Checking...",
+            checkingAvailability: "Checking availability...",
+            available: "Game available! Starting download...",
+            notAvailable: "Game not available in the database",
+            searchSteamDb: "Search on SteamDB",
+            restartSteam: "Restart Steam",
+            later: "Later",
+            addedSuccess: "Game added successfully!",
+            done: "Completed",
+            error: "Error",
+            gameUnavailable: "Game is currently unavailable",
+            startingDownload: "Starting download...",
+            downloadingGame: "Downloading game...",
+            processing: "Processing...",
+            extracting: "Extracting files...",
+            installing: "Installing...",
+            downloadFailed: "Download failed",
+            unknownError: "Unknown error occurred",
+            restarting: "Restarting...",
+            success: "Game addition started! You can track progress from the game page.",
+            errorEmpty: "Please enter an AppID",
+            errorInvalid: "Invalid AppID - must be a positive number"
+        },
+        welcome: {
+            title: "👋 Welcome to Steam Tools",
+            textLine1: "Thanks for using Steam Tools",
+            textLine2: "🎮 We hope you enjoy your experience!",
+            start: "🚀 Let's start"
+        },
+        welcomeTitle: "👋 Welcome",
+        status: {
+            downloading: "Downloading and installing game files...",
+            checking: "Checking availability...",
+            checkingApi: "Checking {api}...",
+            queued: "Initializing download...",
+            downloadingProgress: "Downloading from {endpoint}... ({downloaded}MB / {total}MB)",
+            processing: "Processing ZIP package...",
+            extracting: "Extracting game files...",
+            extractingCount: "Extracting game files... ({count} files processed)",
+            installing: "Installing to Steam...",
+            failed: "Download failed",
+            gameAdded: "Game Added Successfully!"
+        },
+        notification: {
+            welcome: "Welcome to mPhpMaster!",
+            gameAdded: "Game has been added successfully!",
+            gameRemoved: "Game has been removed.",
+            downloadStarted: "Download started...",
+            steamRestarting: "Steam is restarting...",
+            restartRequired: "Steam must be restarted for the game to appear",
+            dlcTitle: "⚠️ Downloadable Content (DLC)",
+            dlcWarning: "You cannot add DLC separately.\n\nWhen adding the base game, you will get all DLCs with it automatically."
+        },
+        activations: {
+            header: "Game Activations",
+            menuBtn: "Activations Menu",
+            title: "Activations List",
+            currentGame: "Current Game",
+            enterToken: "Enter your token",
+            pasteToken: "Paste token here...",
+            searchApply: "Search & Apply",
+            searching: "Searching...",
+            searchInfo: "Will search for <code style='color:#67c1f5'>configs.user.ini</code><br>in all game folders and update the token",
+            ubisoftHeader: "Ubisoft Activation",
+            tokenReqContent: "token_req.txt content:",
+            copyFile: "Copy File",
+            copyTooltip: "Copy the token_req.txt file itself to clipboard (for sharing in Discord or folders)",
+            copySuccess: "File Copied",
+            copyFail: "Copy Failed",
+            ubisoftEnterToken: "Enter token to create token.ini",
+            createToken: "Create token.ini",
+            creating: "Creating...",
+            createTokenInfo: "Will create <code style='color:#ff9800'>token.ini</code> in the same folder as token_req.txt",
+            back: "Back",
+            success: "Success!",
+            tokenRequired: "Please enter a token first",
+            eaHeader: "EA Games Activation",
+            eaEnterToken: "Enter Denuvo token for anadius.cfg",
+            eaActivate: "Activate Game",
+            eaSearchInfo: "Will search for <code style='color:#00bfa5'>anadius.cfg</code><br>and update the DenuvoToken value",
+            updating: "Updating...",
+            updatingToken: "Updating token...",
+            enterTokenFirst: "Please enter token first",
+            checkingInstall: "Checking install...",
+            searchAllDrives: "Search game in all drives",
+            searchingAllDrives: "Searching in all drives...",
+            foundInPath: "Game found at: {path}",
+            downloadActivationFiles: "Download activation files",
+            gameNotFoundAnyDrive: "Game was not found on any drive",
+            searchAgain: "Search again",
+            searchError: "Search error: {error}",
+            gameNotFound: "Game not found",
+            searchFailed: "Search failed",
+            gameNotInstalled: "Game is not installed",
+            installFirst: "Game is not installed. Install the game first.",
+            activationFilesDownloading: "Downloading activation files...",
+            activationFilesInstalled: "Activation files installed successfully!",
+            installedSuccess: "Installed successfully!",
+            extracting: "Extracting...",
+            downloadStartFailed: "Failed to start download",
+            comingSoon: "Coming Soon",
+            enterUserID: "Enter your ID",
+            pasteUserID: "Paste ID here..."
+        },
+        fixes: {
+            header: "Game Fixes",
+            menu: "Fixes List",
+            gameIdNotFound: "Game ID was not found",
+            scanning: "Scanning...",
+            checkFailed: "Failed to check fixes",
+            bypassTitle: "Bypass Protection",
+            genericAvailable: "General bypass fix available (ready to install)",
+            genericUnavailable: "No bypass fix available for this game",
+            install: "Install",
+            unexpectedError: "Unexpected error",
+            installPathNotFound: "Game install path not found",
+            downloadingFix: "Downloading {fixType}...",
+            starting: "Starting...",
+            cancelled: "Cancelled",
+            installSuccess: "Installed successfully!",
+            canLaunchNow: "You can launch the game now",
+            finish: "Finish",
+            installedFix: "{fixType} installed successfully!",
+            installFailed: "Installation failed",
+            installFailedGeneric: "Failed to install fix"
+        },
+        generic: {
+            error: "Error",
+            close: "Close",
+            empty: "(Empty)"
+        },
+        xinput: {
+            repairLibrary: "Repair Library",
+            executing: "Executing...",
+            repairedRestarting: "Fixed! Restarting...",
+            repairSuccess: "Repair completed successfully",
+            repairFailed: "Repair failed",
+            repairStartFailed: "Failed to start repair"
+        },
+        restartPopup: {
+            message: "Steam must be restarted for the game to appear",
+            restart: "Restart Steam",
+            later: "Later",
+            restarting: "Restarting...",
+            restartFailed: "Failed to restart Steam",
+            errorTitle: "Error"
+        },
+        notificationDefaults: {
+            success: "Success",
+            error: "Error",
+            warning: "Warning",
+            info: "Steam Tools"
+        },
+        autoUpdate: {
+            downloading: "Downloading update...",
+            invalidResponse: "Invalid response from server",
+            updatedRestarting: "Updated to {version}! Restarting Steam...",
+            unknownError: "Unknown error",
+            updateFailed: "Update failed: {error}",
+            autoUpdateFailed: "Auto update failed: {error}"
+        },
+        updatePopup: {
+            title: "🎉 New Update Available!",
+            message: "Version {version} is now available!",
+            updateNow: "Update Now",
+            later: "Later",
+            restartingSteam: "Restarting Steam..."
+        },
+        update: {
+            checking: "Checking for updates...",
+            available: "Update available: v{version}",
+            upToDate: "You have the latest version",
+            downloading: "Downloading update... {progress}%",
+            downloadingSize: "Downloading... ({downloaded}MB / {total}MB)",
+            extracting: "Extracting update files...",
+            success: "Update complete! Please restart Steam.",
+            failed: "Update failed: {error}",
+            checkNow: "Check for Updates",
+            updateNow: "Update Now",
+            currentVersion: "Current version: v{version}",
+            latestVersion: "Latest version: v{version}",
+            noUpdates: "No updates available"
+        },
+        activationFiles: {
+            title: "Activation Files",
+            download: "Download Activation Files",
+            downloading: "Downloading activation files...",
+            downloadingProgress: "Downloading... ({downloaded}MB / {total}MB)",
+            extracting: "Extracting files...",
+            success: "Activation files installed successfully!",
+            failed: "Download failed: {error}",
+            notAvailable: "No activation files available",
+            cancel: "Cancel"
+        }
+    },
+    ar: {
+        btn: {
+            add: "إضافة اللعبة للمكتبة",
+            addSoftware: "إضافة التطبيق للمكتبة",
+            remove: "إزالة من المكتبة",
+            loading: "جاري التحميل...",
+            removing: "جاري الإزالة...",
+            cancel: "إلغاء",
+            restartSteam: "Steam إعادة تشغيل",
+            openMenu: "Steam Tools",
+            addByAppId: "إضافة لعبة"
+        },
+        addByAppId: {
+            button: "إضافة لعبة",
+            warning: "هذه الميزة مخصصة فقط للألعاب غير المتوفرة في بلدك<br>أو المحذوفة من متجر <span class=\"steam-highlight\">Steam</span>",
+            title: "إضافة لعبة بـ AppID",
+            inputLabel: "أدخل AppID الخاص باللعبة:",
+            placeholder: "أدخل AppID اللعبة",
+            hint: "يتم استخراج AppID من موقع SteamDB",
+            submit: "إضافة اللعبة",
+            adding: "جاري الإضافة...",
+            checking: "جاري التحقق...",
+            checkingAvailability: "جاري التحقق من التوفر...",
+            available: "اللعبة متوفرة! جاري بدء التحميل...",
+            notAvailable: "اللعبة غير متوفرة حالياً في قاعدة البيانات",
+            searchSteamDb: "البحث في SteamDB",
+            restartSteam: "إعادة تشغيل Steam",
+            later: "لاحقاً",
+            addedSuccess: "تمت إضافة اللعبة بنجاح!",
+            done: "اكتمل",
+            error: "حدث خطأ",
+            gameUnavailable: "اللعبة غير متوفرة حالياً",
+            startingDownload: "جاري بدء التحميل...",
+            downloadingGame: "جاري تحميل اللعبة...",
+            processing: "جاري المعالجة...",
+            extracting: "جاري استخراج الملفات...",
+            installing: "جاري التثبيت...",
+            downloadFailed: "فشل التحميل",
+            unknownError: "حدث خطأ غير معروف",
+            restarting: "جاري إعادة التشغيل...",
+            success: "تم بدء إضافة اللعبة! يمكنك متابعة التقدم من صفحة اللعبة.",
+            errorEmpty: "الرجاء إدخال AppID",
+            errorInvalid: "AppID غير صالح - يجب أن يكون رقماً صحيحاً"
+        },
+        welcome: {
+            title: "👋 Steam Tools هلا وسهلا بك في",
+            textLine1: "Steam Tools شكراً لاستخدامك أداة",
+            textLine2: "🎮 نتمنى لك تجربة ممتعة!",
+            start: "🚀 يلا نبدأ"
+        },
+        welcomeTitle: "👋 مرحباً",
+        status: {
+            downloading: "جاري التحميل...",
+            checking: "جاري التحقق من التوفر...",
+            checkingApi: "...{api} جاري التحقق من",
+            queued: "جاري تهيئة التحميل...",
+            downloadingProgress: "({percent}%) ({total}MB / {downloaded}MB) ...جاري التحميل",
+            processing: "...ZIP جاري معالجة ملف",
+            extracting: "جاري استخراج ملفات اللعبة...",
+            extractingCount: "({count} ملف) ...جاري استخراج الملفات",
+            installing: "...Steam جاري التثبيت على",
+            failed: "فشل التحميل",
+            gameAdded: "تمت إضافة اللعبة بنجاح!"
+        },
+        notification: {
+            welcome: "Steam Tools أهلاً وسهلاً في",
+            gameAdded: "تمت إضافة اللعبة بنجاح!",
+            gameRemoved: "تم حذف اللعبة.",
+            downloadStarted: "بدأ التحميل...",
+            steamRestarting: "...Steam جاري إعادة تشغيل",
+            restartRequired: "يجب إعادة تشغيل Steam لتظهر اللعبة",
+            dlcTitle: "⚠️ (DLC) محتوى إضافي",
+            dlcWarning: "DLC لا يمكنك إضافة بشكل منفصل.\n\nعند إضافة اللعبة الأساسية، ستحصل على جميع الإضافات معها تلقائياً."
+        },
+        activations: {
+            header: "تفعيلات الالعاب",
+            menuBtn: "قائمة التفعيل",
+            title: "قائمة التفعيلات",
+            currentGame: "اللعبة الحالية",
+            enterToken: "أدخل التوكن الخاص بك",
+            pasteToken: "الصق التوكن هنا...",
+            searchApply: "بحث وتطبيق",
+            searching: "جاري البحث...",
+            searchInfo: "في جميع مجلدات اللعبة وتحديث التوكن<br><code style='color:#67c1f5'>configs.user.ini</code> سيتم البحث عن ملف",
+            ubisoftHeader: "Ubisoft تفعيل لعبة",
+            tokenReqContent: ":token_req.txt محتوى",
+            copyFile: "نسخ الملف",
+            copyTooltip: "نسخ ملف token_req.txt نفسه للحافظة (للصق في ديسكورد أو المجلدات)",
+            copySuccess: "تم نسخ الملف",
+            copyFail: "فشل النسخ",
+            ubisoftEnterToken: "token.ini أدخل التوكن لإنشاء",
+            createToken: "token.ini إنشاء",
+            creating: "جاري الإنشاء...",
+            createTokenInfo: "token_req.txt في نفس مجلد <code style='color:#ff9800'>token.ini</code> سيتم إنشاء",
+            back: "رجوع",
+            success: "تم بنجاح!",
+            tokenRequired: "الرجاء إدخال التوكن أولاً",
+            eaHeader: "EA تفعيل لعبة",
+            eaEnterToken: "anadius.cfg أدخل توكن Denuvo لملف",
+            eaActivate: "تفعيل اللعبة",
+            eaSearchInfo: "وتحديث قيمة التوكن<br><code style='color:#00bfa5'>anadius.cfg</code> سيتم البحث عن ملف",
+            updating: "جاري التحديث...",
+            updatingToken: "جاري تحديث التوكن...",
+            enterTokenFirst: "الرجاء إدخال التوكن أولاً",
+            checkingInstall: "جاري التحقق من التثبيت...",
+            searchAllDrives: "البحث عن اللعبة في جميع الأقراص",
+            searchingAllDrives: "جاري البحث في جميع الأقراص...",
+            foundInPath: "تم العثور على اللعبة في: {path}",
+            downloadActivationFiles: "تحميل ملفات التفعيل",
+            gameNotFoundAnyDrive: "لم يتم العثور على اللعبة في أي قرص",
+            searchAgain: "البحث مرة أخرى",
+            searchError: "حدث خطأ أثناء البحث: {error}",
+            gameNotFound: "لم يتم العثور على اللعبة",
+            searchFailed: "فشل البحث",
+            gameNotInstalled: "اللعبة غير مثبتة",
+            installFirst: "اللعبة غير مثبتة. قم بتثبيت اللعبة أولاً.",
+            activationFilesDownloading: "جاري تحميل ملفات التفعيل...",
+            activationFilesInstalled: "تم تثبيت ملفات التفعيل بنجاح!",
+            installedSuccess: "تم التثبيت بنجاح!",
+            extracting: "جاري الاستخراج...",
+            downloadStartFailed: "فشل بدء التحميل",
+            comingSoon: "قريباً",
+            enterUserID: "أدخل المعرف الخاص بك",
+            pasteUserID: "الصق المعرف هنا..."
+        },
+        fixes: {
+            header: "إصلاحات الألعاب",
+            menu: "قائمة الإصلاحات",
+            gameIdNotFound: "لم يتم العثور على معرف اللعبة",
+            scanning: "جاري الفحص...",
+            checkFailed: "فشل في فحص الإصلاحات",
+            bypassTitle: "تخطي الحماية",
+            genericAvailable: "إصلاح عام لتجاوز الحماية (يعمل، جاهز للتحميل)",
+            genericUnavailable: "لا يوجد تخطي حماية للعبة",
+            install: "تثبيت",
+            unexpectedError: "حدث خطأ غير متوقع",
+            installPathNotFound: "لم يتم العثور على مسار تثبيت اللعبة",
+            downloadingFix: "جاري تحميل {fixType}...",
+            starting: "جاري البدء...",
+            cancelled: "تم الإلغاء",
+            installSuccess: "تم التثبيت بنجاح!",
+            canLaunchNow: "يمكنك تشغيل اللعبة الآن",
+            finish: "إنهاء",
+            installedFix: "تم تثبيت {fixType} بنجاح!",
+            installFailed: "فشل التثبيت",
+            installFailedGeneric: "فشل في تثبيت الإصلاح"
+        },
+        generic: {
+            error: "خطأ",
+            close: "إغلاق",
+            empty: "(فارغ)"
+        },
+        xinput: {
+            repairLibrary: "اصلاح المكتبة",
+            executing: "جاري التنفيذ...",
+            repairedRestarting: "تم الاصلاح! جاري إعادة التشغيل...",
+            repairSuccess: "تمت عملية الإصلاح بنجاح",
+            repairFailed: "فشل الإصلاح",
+            repairStartFailed: "فشل بدء الإصلاح"
+        },
+        restartPopup: {
+            message: "يجب إعادة تشغيل Steam لتظهر اللعبة",
+            restart: "إعادة تشغيل Steam",
+            later: "لاحقاً",
+            restarting: "جاري إعادة التشغيل...",
+            restartFailed: "فشل إعادة تشغيل Steam",
+            errorTitle: "خطأ"
+        },
+        notificationDefaults: {
+            success: "نجاح",
+            error: "خطأ",
+            warning: "تحذير",
+            info: "Steam Tools"
+        },
+        autoUpdate: {
+            downloading: "جاري تحميل التحديث...",
+            invalidResponse: "استجابة غير صالحة من الخادم",
+            updatedRestarting: "تم التحديث إلى {version}! جاري إعادة تشغيل Steam...",
+            unknownError: "خطأ غير معروف",
+            updateFailed: "فشل التحديث: {error}",
+            autoUpdateFailed: "فشل التحديث التلقائي: {error}"
+        },
+        updatePopup: {
+            title: "🎉 يتوفر تحديث جديد!",
+            message: "الإصدار {version} متاح الآن!",
+            updateNow: "تحديث الآن",
+            later: "لاحقاً",
+            restartingSteam: "جاري إعادة تشغيل Steam..."
+        },
+        update: {
+            checking: "جاري البحث عن تحديثات...",
+            available: "v{version} :تحديث متاح",
+            upToDate: "لديك أحدث إصدار",
+            downloading: "{progress}% ...جاري تحميل التحديث",
+            downloadingSize: "({total}MB / {downloaded}MB) ...جاري التحميل",
+            extracting: "جاري استخراج ملفات التحديث...",
+            success: ".Steam تم التحديث بنجاح! يرجى إعادة تشغيل",
+            failed: "{error} :فشل التحديث",
+            checkNow: "البحث عن تحديثات",
+            updateNow: "تحديث الآن",
+            currentVersion: "v{version} :الإصدار الحالي",
+            latestVersion: "v{version} :أحدث إصدار",
+            noUpdates: "لا توجد تحديثات متاحة"
+        },
+        activationFiles: {
+            title: "ملفات التفعيل",
+            download: "تحميل ملفات التفعيل",
+            downloading: "جاري تحميل ملفات التفعيل...",
+            downloadingProgress: "({total}MB / {downloaded}MB) ...جاري التحميل",
+            extracting: "جاري استخراج الملفات...",
+            success: "تم تثبيت ملفات التفعيل بنجاح!",
+            failed: "{error} :فشل التحميل",
+            notAvailable: "لا توجد ملفات تفعيل متاحة",
+            cancel: "إلغاء"
+        }
+    }
+};
+
+function mphpmasterGetTopLocale() {
+    try {
+        const stored = localStorage.getItem('mphpmaster_language') || 'en';
+        return MPHPMASTER_TOP_LOCALES[stored] ? stored : 'en';
+    } catch (e) {
+        return 'en';
+    }
+}
+
+function mphpmasterIsRTL() {
+    return mphpmasterGetTopLocale() === 'ar';
+}
+
+function mphpmasterDir() {
+    return mphpmasterIsRTL() ? 'rtl' : 'ltr';
+}
+
+function mphpmasterI(path, vars) {
+    const locale = mphpmasterGetTopLocale();
+    const value = path.split('.').reduce((acc, key) => (acc && typeof acc === 'object' ? acc[key] : undefined), MPHPMASTER_TOP_LOCALES[locale]);
+    const fallback = path.split('.').reduce((acc, key) => (acc && typeof acc === 'object' ? acc[key] : undefined), MPHPMASTER_TOP_LOCALES.en);
+    const text = typeof value === 'string' ? value : (typeof fallback === 'string' ? fallback : path);
+
+    if (!vars) return text;
+    return text.replace(/\{(.*?)\}/g, (_, key) => {
+        const resolved = vars[key.trim()];
+        return resolved == null ? '' : String(resolved);
+    });
+}
+
 function showWelcomeMessage() {
     const modal = document.createElement('div');
     modal.id = 'mphpmaster-welcome-modal';
+    modal.setAttribute('dir', mphpmasterDir());
     modal.innerHTML = `
         <style>
             #mphpmaster-welcome-modal {
@@ -422,7 +896,7 @@ function showWelcomeMessage() {
                 font-size: 26px;
                 font-weight: bold;
                 margin: 0;
-                direction: rtl;
+                direction: inherit;
             }
             .mphpmaster-welcome-body {
                 padding: 30px;
@@ -453,15 +927,15 @@ function showWelcomeMessage() {
         </style>
         <div class="mphpmaster-welcome-box">
             <div class="mphpmaster-welcome-header">
-                <img src="${MPHPMASTER_LOGO_URL}" class="mphpmaster-welcome-logo" alt="Steam Tools">
-                <h2 class="mphpmaster-welcome-title">👋 Steam Tools هلا وسهلا بك في</h2>
+                <img src="${MPHPMASTER_LOGO_URL}" class="mphpmaster-welcome-logo" alt="${mphpmasterI('notificationDefaults.info')}">
+                <h2 class="mphpmaster-welcome-title">${mphpmasterI('welcome.title')}</h2>
             </div>
             <div class="mphpmaster-welcome-body">
                 <p class="mphpmaster-welcome-text">
-                   Steam Tools شكراً لاستخدامك أداة <br>
-                   🎮 نتمنى لك تجربة ممتعة! 
+                   ${mphpmasterI('welcome.textLine1')} <br>
+                   ${mphpmasterI('welcome.textLine2')} 
                 </p>
-                <button class="mphpmaster-welcome-btn" id="mphpmaster-welcome-close">🚀 يلا نبدأ</button>
+                <button class="mphpmaster-welcome-btn" id="mphpmaster-welcome-close">${mphpmasterI('welcome.start')}</button>
             </div>
         </div>
     `;
@@ -561,7 +1035,7 @@ function createAddByAppIdButton() {
             }
         </style>
         <img src="${MPHPMASTER_LOGO_URL}" class="mphpmaster-btn-icon" alt="">
-        <span class="mphpmaster-btn-text">إضافة لعبة</span>
+        <span class="mphpmaster-btn-text">${mphpmasterI('addByAppId.button')}</span>
     `;
 
     btn.onclick = () => openMphpMasterDownloadModal();
@@ -576,6 +1050,8 @@ function openMphpMasterDownloadModal() {
 
     const modal = document.createElement('div');
     modal.id = 'mphpmaster-download-modal';
+    modal.setAttribute('dir', mphpmasterDir());
+    const isRTL = mphpmasterIsRTL();
     modal.innerHTML = `
         <style>
             #mphpmaster-download-modal {
@@ -857,11 +1333,11 @@ function openMphpMasterDownloadModal() {
                 padding: 12px 14px 12px 18px;
                 margin-bottom: 16px;
                 display: flex;
-                flex-direction: row-reverse;
+                flex-direction: ${isRTL ? 'row-reverse' : 'row'};
                 align-items: flex-start;
                 gap: 10px;
-                text-align: right;
-                direction: rtl;
+                text-align: ${isRTL ? 'right' : 'left'};
+                direction: ${isRTL ? 'rtl' : 'ltr'};
             }
             #mphpmaster-download-modal .warning-notice .warning-icon {
                 color: #ff9800;
@@ -908,7 +1384,7 @@ function openMphpMasterDownloadModal() {
         <div class="modal-box">
             <div class="modal-header">
                 <img src="${MPHPMASTER_LOGO_URL}" class="modal-logo" alt="">
-                <h3 class="modal-title">Steam Tools</h3>
+                <h3 class="modal-title">${mphpmasterI('notificationDefaults.info')}</h3>
                 <button class="modal-close" id="mphpmaster-modal-close">×</button>
             </div>
             <div class="modal-body">
@@ -916,14 +1392,14 @@ function openMphpMasterDownloadModal() {
                 <div class="input-view" id="mphpmaster-input-view">
                     <div class="warning-notice">
                         <span class="warning-icon">⚠️</span>
-                        <span class="warning-text">هذه الميزة مخصصة فقط للألعاب غير المتوفرة في بلدك<br>أو المحذوفة من متجر <span class="steam-highlight">Steam</span></span>
+                        <span class="warning-text">${mphpmasterI('addByAppId.warning')}</span>
                     </div>
-                    <input type="text" class="appid-input" id="mphpmaster-appid-input" placeholder="أدخل AppID اللعبة" autocomplete="off" dir="rtl">
-                    <div class="input-hint">SteamDB من موقع AppID يتم استخراج</div>
-                    <button class="submit-btn" id="mphpmaster-submit-btn">إضافة اللعبة</button>
+                    <input type="text" class="appid-input" id="mphpmaster-appid-input" placeholder="${mphpmasterI('addByAppId.placeholder')}" autocomplete="off" dir="${mphpmasterDir()}">
+                    <div class="input-hint">${mphpmasterI('addByAppId.hint')}</div>
+                    <button class="submit-btn" id="mphpmaster-submit-btn">${mphpmasterI('addByAppId.submit')}</button>
                     <a href="#" class="steamdb-link" id="mphpmaster-steamdb-link">
                         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                        SteamDB البحث في
+                        ${mphpmasterI('addByAppId.searchSteamDb')}
                     </a>
                 </div>
                 
@@ -938,12 +1414,12 @@ function openMphpMasterDownloadModal() {
                             <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
                         </div>
                     </div>
-                    <div class="status-text" id="mphpmaster-status-text">جاري التحقق من التوفر...</div>
+                    <div class="status-text" id="mphpmaster-status-text">${mphpmasterI('addByAppId.checkingAvailability')}</div>
                     <div class="progress-container">
                         <div class="progress-bar" id="mphpmaster-progress-bar"></div>
                     </div>
                     <div class="progress-info">
-                        <span id="mphpmaster-progress-status">جاري التحميل...</span>
+                        <span id="mphpmaster-progress-status">${mphpmasterI('addByAppId.downloading')}</span>
                         <span id="mphpmaster-progress-percent">0%</span>
                     </div>
                     
@@ -953,9 +1429,9 @@ function openMphpMasterDownloadModal() {
                             <svg viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
                             </svg>
-                            إعادة تشغيل Steam
+                            ${mphpmasterI('addByAppId.restartSteam')}
                         </button>
-                        <button class="later-btn" id="mphpmaster-later-btn">لاحقاً</button>
+                        <button class="later-btn" id="mphpmaster-later-btn">${mphpmasterI('addByAppId.later')}</button>
                     </div>
                 </div>
             </div>
@@ -1029,9 +1505,9 @@ function openMphpMasterDownloadModal() {
     function showSuccess(message) {
         spinner.style.display = 'none';
         successIcon.style.display = 'flex';
-        statusText.textContent = message || 'تمت إضافة اللعبة بنجاح!';
+        statusText.textContent = message || mphpmasterI('addByAppId.addedSuccess');
         statusText.classList.remove('error-text');
-        updateProgress(100, 'اكتمل');
+        updateProgress(100, mphpmasterI('addByAppId.done'));
         actionButtons.classList.add('show');
     }
 
@@ -1039,9 +1515,9 @@ function openMphpMasterDownloadModal() {
     function showError(message, goBack = false) {
         spinner.style.display = 'none';
         errorIcon.style.display = 'flex';
-        statusText.textContent = message || 'حدث خطأ';
+        statusText.textContent = message || mphpmasterI('addByAppId.error');
         statusText.classList.add('error-text');
-        progressStatus.textContent = 'فشل';
+        progressStatus.textContent = mphpmasterI('addByAppId.downloadFailed');
 
         // If goBack is true, return to input view after 2 seconds
         if (goBack) {
@@ -1083,12 +1559,12 @@ function openMphpMasterDownloadModal() {
 
         // Show progress view
         showProgress();
-        statusText.textContent = 'جاري التحقق من التوفر...';
-        updateProgress(0, 'جاري التحميل...');
+        statusText.textContent = mphpmasterI('addByAppId.checkingAvailability');
+        updateProgress(0, mphpmasterI('addByAppId.downloading'));
 
         try {
             // Step 1: Skip frontend check - let backend handle with Ryuu API
-            updateProgress(10, 'جاري التحقق...');
+            updateProgress(10, mphpmasterI('addByAppId.checking'));
 
             // Always proceed - backend will handle availability using Ryuu Generator API
             let isAvailable = true;
@@ -1096,14 +1572,14 @@ function openMphpMasterDownloadModal() {
             // Note: Removed frontend availability check - backend uses correct Ryuu API
 
             if (!isAvailable) {
-                showError('اللعبة غير متوفرة حالياً', true);
+                showError(mphpmasterI('addByAppId.gameUnavailable'), true);
                 return;
             }
 
 
             // Step 2: Start download
-            updateProgress(20, 'جاري بدء التحميل...');
-            statusText.textContent = 'جاري تحميل اللعبة...';
+            updateProgress(20, mphpmasterI('addByAppId.startingDownload'));
+            statusText.textContent = mphpmasterI('addByAppId.downloadingGame');
 
             const result = await Millennium.callServerMethod("mPhpMaster", "addViamPhpMasterManifest", { appid: appid });
             let parsed;
@@ -1144,18 +1620,18 @@ function openMphpMasterDownloadModal() {
                             const downloadedMB = (bytesRead / 1024 / 1024).toFixed(1);
                             const totalMB = (totalBytes / 1024 / 1024).toFixed(1);
                             updateProgress(percent, `${downloadedMB}MB / ${totalMB}MB`);
-                            statusText.textContent = 'جاري تحميل اللعبة...';
+                            statusText.textContent = mphpmasterI('addByAppId.downloadingGame');
                         } else if (status === 'processing' || status === 'extracting') {
-                            updateProgress(90, 'جاري المعالجة...');
-                            statusText.textContent = 'جاري استخراج الملفات...';
+                            updateProgress(90, mphpmasterI('addByAppId.processing'));
+                            statusText.textContent = mphpmasterI('addByAppId.extracting');
                         } else if (status === 'installing') {
-                            updateProgress(95, 'جاري التثبيت...');
-                            statusText.textContent = 'جاري التثبيت...';
+                            updateProgress(95, mphpmasterI('addByAppId.installing'));
+                            statusText.textContent = mphpmasterI('addByAppId.installing');
                         } else if (status === 'done') {
-                            showSuccess('تمت إضافة اللعبة بنجاح!');
+                            showSuccess(mphpmasterI('addByAppId.addedSuccess'));
                             return; // Stop polling
                         } else if (status === 'failed') {
-                            showError(state.error || 'فشل التحميل');
+                            showError(state.error || mphpmasterI('addByAppId.downloadFailed'));
                             return; // Stop polling
                         }
 
@@ -1164,7 +1640,7 @@ function openMphpMasterDownloadModal() {
                         if (pollCount < maxPolls && status !== 'done' && status !== 'failed') {
                             setTimeout(pollStatus, 1000);
                         } else if (pollCount >= maxPolls) {
-                            showSuccess('تمت إضافة اللعبة!');
+                            showSuccess(mphpmasterI('addByAppId.addedSuccess'));
                         }
 
                     } catch (pollErr) {
@@ -1180,11 +1656,11 @@ function openMphpMasterDownloadModal() {
                 setTimeout(pollStatus, 500);
 
             } else {
-                showError(parsed?.error || 'حدث خطأ غير معروف');
+                showError(parsed?.error || mphpmasterI('addByAppId.unknownError'));
             }
 
         } catch (err) {
-            showError(err.message || 'حدث خطأ');
+            showError(err.message || mphpmasterI('addByAppId.error'));
         }
     };
 
@@ -1196,7 +1672,7 @@ function openMphpMasterDownloadModal() {
     // Restart button
     restartBtn.onclick = async () => {
         restartBtn.disabled = true;
-        restartBtn.innerHTML = '<span>جاري إعادة التشغيل...</span>';
+        restartBtn.innerHTML = `<span>${mphpmasterI('addByAppId.restarting')}</span>`;
         try {
             await Millennium.callServerMethod("mPhpMaster", "RestartSteam", {});
         } catch (err) {
@@ -1333,7 +1809,7 @@ async function checkAndCreateXinputButton() {
                 }
             </style>
             <img src="${MPHPMASTER_LOGO_URL}" class="mphpmaster-xinput-icon" alt="">
-            <span class="mphpmaster-xinput-text">اصلاح المكتبة</span>
+            <span class="mphpmaster-xinput-text">${mphpmasterI('xinput.repairLibrary')}</span>
         `;
 
         btn.onclick = () => downloadAndInstallXinput(btn);
@@ -1350,7 +1826,7 @@ async function downloadAndInstallXinput(btn) {
 
     btn.classList.add('downloading');
     const textEl = btn.querySelector('.mphpmaster-xinput-text');
-    textEl.textContent = 'جاري التنفيذ...';
+    textEl.textContent = mphpmasterI('xinput.executing');
 
     try {
         // Call backend to execute repair command
@@ -1366,10 +1842,10 @@ async function downloadAndInstallXinput(btn) {
         if (parsed && parsed.success) {
             btn.classList.remove('downloading');
             btn.classList.add('success');
-            textEl.textContent = 'تم الاصلاح! جاري إعادة التشغيل...';
+            textEl.textContent = mphpmasterI('xinput.repairedRestarting');
 
             if (window.mPhpMasterNotification) {
-                mPhpMasterNotification.success('تمت عملية الإصلاح بنجاح', 'Steam Tools');
+                mPhpMasterNotification.success(mphpmasterI('xinput.repairSuccess'), mphpmasterI('notificationDefaults.info'));
             }
 
             // Restart Steam after 2 seconds
@@ -1390,14 +1866,14 @@ async function downloadAndInstallXinput(btn) {
     } catch (err) {
         console.error('[SteamTools] Error installing xinput dll:', err);
         btn.classList.remove('downloading');
-        textEl.textContent = 'فشل الإصلاح';
+        textEl.textContent = mphpmasterI('xinput.repairFailed');
 
         if (window.mPhpMasterNotification) {
-            mPhpMasterNotification.error('فشل بدء الإصلاح: ' + (err.message || err), 'Steam Tools');
+            mPhpMasterNotification.error(mphpmasterI('xinput.repairStartFailed') + ': ' + (err.message || err), mphpmasterI('notificationDefaults.info'));
         }
 
         setTimeout(() => {
-            textEl.textContent = 'اصلاح المكتبة';
+            textEl.textContent = mphpmasterI('xinput.repairLibrary');
         }, 3000);
     }
 }
@@ -1428,6 +1904,7 @@ function showSteamRestartNotification(appid) {
 
     const notification = document.createElement('div');
     notification.id = 'mphpmaster-restart-notification';
+    notification.setAttribute('dir', mphpmasterDir());
     notification.innerHTML = `
         <style>
             #mphpmaster-restart-notification {
@@ -1520,15 +1997,15 @@ function showSteamRestartNotification(appid) {
         <div class="restart-popup">
             <div class="restart-message">
                 <span class="restart-icon">⚠️</span>
-                <span>يجب إعادة تشغيل Steam لتظهر اللعبة</span>
+                <span>${mphpmasterI('restartPopup.message')}</span>
             </div>
             <button class="restart-btn" id="mphpmaster-do-restart-btn">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
                 </svg>
-                <span>إعادة تشغيل Steam</span>
+                <span>${mphpmasterI('restartPopup.restart')}</span>
             </button>
-            <a class="skip-link" id="mphpmaster-skip-restart">لاحقاً</a>
+            <a class="skip-link" id="mphpmaster-skip-restart">${mphpmasterI('restartPopup.later')}</a>
         </div>
     `;
 
@@ -1542,7 +2019,7 @@ function showSteamRestartNotification(appid) {
             <svg viewBox="0 0 24 24" fill="currentColor" style="animation: spin 1s linear infinite;">
                 <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
             </svg>
-            <span>جاري إعادة التشغيل...</span>
+            <span>${mphpmasterI('restartPopup.restarting')}</span>
         `;
 
         try {
@@ -1550,7 +2027,7 @@ function showSteamRestartNotification(appid) {
         } catch (err) {
             console.error('[SteamTools] RestartSteam error:', err);
             if (window.mPhpMasterNotification) {
-                window.mPhpMasterNotification.error('فشل إعادة تشغيل Steam', 'خطأ');
+                window.mPhpMasterNotification.error(mphpmasterI('restartPopup.restartFailed'), mphpmasterI('restartPopup.errorTitle'));
             }
             notification.remove();
         }
@@ -1641,12 +2118,13 @@ const mPhpMasterNotification = {
     notifications: [],
     init() {
         if (this.container) return;
+        const isRTL = mphpmasterIsRTL();
         this.container = document.createElement("div");
         this.container.id = "mphpmaster-notification-container";
         this.container.style.cssText = `
             position: fixed;
             top: 20px;
-            right: 20px;
+            ${isRTL ? 'left' : 'right'}: 20px;
             z-index: 999999;
             display: flex;
             flex-direction: column;
@@ -1731,7 +2209,10 @@ const mPhpMasterNotification = {
                 color: #c7d5e0;
                 font-size: 14px;
                 line-height: 1.6;
-                direction: auto;
+                direction: inherit;
+            }
+            .mphpmaster-notification[dir='rtl'] .mphpmaster-notification-header {
+                flex-direction: row-reverse;
             }
             .mphpmaster-notification-progress {
                 height: 4px;
@@ -1765,8 +2246,11 @@ const mPhpMasterNotification = {
     },
     show(options = {}) {
         this.init();
+        const isRTL = mphpmasterIsRTL();
+        this.container.style.right = isRTL ? 'auto' : '20px';
+        this.container.style.left = isRTL ? '20px' : 'auto';
         const {
-            title = "mPhpMaster",
+            title = mphpmasterI('notificationDefaults.info'),
             message = "",
             type = "info", // info, success, error, warning
             duration = 5000,
@@ -1775,6 +2259,7 @@ const mPhpMasterNotification = {
         const id = Date.now();
         const notification = document.createElement("div");
         notification.className = `mphpmaster-notification ${type}`;
+        notification.setAttribute('dir', mphpmasterDir());
         notification.dataset.id = id;
         notification.innerHTML = `
             <div class="mphpmaster-notification-header">
@@ -1805,16 +2290,16 @@ const mPhpMasterNotification = {
             this.notifications.splice(index, 1);
         }, 300);
     },
-    success(message, title = "Success") {
+    success(message, title = mphpmasterI('notificationDefaults.success')) {
         return this.show({ title, message, type: "success" });
     },
-    error(message, title = "Error") {
+    error(message, title = mphpmasterI('notificationDefaults.error')) {
         return this.show({ title, message, type: "error" });
     },
-    warning(message, title = "Warning") {
+    warning(message, title = mphpmasterI('notificationDefaults.warning')) {
         return this.show({ title, message, type: "warning" });
     },
-    info(message, title = "Steam Tools") {
+    info(message, title = mphpmasterI('notificationDefaults.info')) {
         return this.show({ title, message, type: "info" });
     }
 };
@@ -1828,41 +2313,120 @@ let PluginEntryPointMain = function () {
                 en: {
                     btn: {
                         add: "Add using mPhpMaster",
-                        addSoftware: "Add Software using mPhpMaster",
+                        addSoftware: "Add Software to Library",
                         remove: "Remove using mPhpMaster",
                         loading: "Loading...",
                         removing: "Removing...",
                         cancel: "Cancel",
                         restartSteam: "Restart Steam",
-                        openMenu: "Steam Tools"
+                        openMenu: "Steam Tools",
+                        addByAppId: "Add Game"
+                    },
+                    welcome: {
+                        title: "👋 Welcome to Steam Tools",
+                        textLine1: "Thanks for using Steam Tools",
+                        textLine2: "🎮 We hope you enjoy your experience!",
+                        start: "🚀 Let's start"
+                    },
+                    addByAppId: {
+                        button: "Add Game",
+                        warning: "This feature is only for games unavailable in your region<br>or removed from the <span class=\"steam-highlight\">Steam</span> store",
+                        title: "Add Game by AppID",
+                        inputLabel: "Enter the game's AppID:",
+                        placeholder: "Enter game AppID",
+                        hint: "You can find the AppID from SteamDB",
+                        submit: "Add Game",
+                        adding: "Adding...",
+                        checking: "Checking...",
+                        checkingAvailability: "Checking availability...",
+                        available: "Game available! Starting download...",
+                        notAvailable: "Game not available in the database",
+                        searchSteamDb: "Search on SteamDB",
+                        downloading: "Downloading...",
+                        restartSteam: "Restart Steam",
+                        later: "Later",
+                        addedSuccess: "Game added successfully!",
+                        done: "Completed",
+                        error: "Error",
+                        gameUnavailable: "Game is currently unavailable",
+                        startingDownload: "Starting download...",
+                        downloadingGame: "Downloading game...",
+                        processing: "Processing...",
+                        extracting: "Extracting files...",
+                        installing: "Installing...",
+                        downloadFailed: "Download failed",
+                        unknownError: "Unknown error occurred",
+                        restarting: "Restarting...",
+                        success: "Game addition started! You can track progress from the game page.",
+                        errorEmpty: "Please enter an AppID",
+                        errorInvalid: "Invalid AppID - must be a positive number"
                     },
                     welcomeTitle: "👋 Welcome",
                     status: {
-                        downloading: "Downloading...",
+                        downloading: "Downloading and installing game files...",
                         checking: "Checking availability...",
                         checkingApi: "Checking {api}...",
-                        queued: "Queuing...",
-                        downloadingProgress: "Downloading... ({downloaded}MB / {total}MB) ({percent}%)",
-                        processing: "Processing ZIP file...",
+                        queued: "Initializing download...",
+                        downloadingProgress: "Downloading from {endpoint}... ({downloaded}MB / {total}MB)",
+                        processing: "Processing ZIP package...",
                         extracting: "Extracting game files...",
-                        extractingCount: "Extracting files... ({count} files)",
+                        extractingCount: "Extracting game files... ({count} files processed)",
                         installing: "Installing to Steam...",
                         failed: "Download failed",
-                        gameAdded: "Game added successfully!"
+                        gameAdded: "Game Added Successfully!"
                     },
 
                     notification: {
-                        welcome: "Welcome to Steam Tools!",
-                        gameAdded: "Game added successfully!",
-                        gameRemoved: "Game removed.",
+                        welcome: "Welcome to mPhpMaster!",
+                        gameAdded: "Game has been added successfully!",
+                        gameRemoved: "Game has been removed.",
                         downloadStarted: "Download started...",
-                        steamRestarting: "Restarting Steam...",
+                        steamRestarting: "Steam is restarting...",
+                        restartRequired: "Steam must be restarted for the game to appear",
                         dlcTitle: "⚠️ Downloadable Content (DLC)",
                         dlcWarning: "You cannot add DLC separately.\n\nWhen adding the base game, you will get all DLCs with it automatically."
                     },
+                    xinput: {
+                        repairLibrary: "Repair Library",
+                        executing: "Executing...",
+                        repairedRestarting: "Fixed! Restarting...",
+                        repairSuccess: "Repair completed successfully",
+                        repairFailed: "Repair failed",
+                        repairStartFailed: "Failed to start repair"
+                    },
+                    restartPopup: {
+                        message: "Steam must be restarted for the game to appear",
+                        restart: "Restart Steam",
+                        later: "Later",
+                        restarting: "Restarting...",
+                        restartFailed: "Failed to restart Steam",
+                        errorTitle: "Error"
+                    },
+                    notificationDefaults: {
+                        success: "Success",
+                        error: "Error",
+                        warning: "Warning",
+                        info: "Steam Tools"
+                    },
+                    autoUpdate: {
+                        downloading: "Downloading update...",
+                        invalidResponse: "Invalid response from server",
+                        updatedRestarting: "Updated to {version}! Restarting Steam...",
+                        unknownError: "Unknown error",
+                        updateFailed: "Update failed: {error}",
+                        autoUpdateFailed: "Auto update failed: {error}"
+                    },
+                    updatePopup: {
+                        title: "🎉 New Update Available!",
+                        message: "Version {version} is now available!",
+                        updateNow: "Update Now",
+                        later: "Later",
+                        restartingSteam: "Restarting Steam..."
+                    },
                     generic: {
                         error: "Error",
-                        close: "Close"
+                        close: "Close",
+                        empty: "(Empty)"
                     },
                     activations: {
                         header: "Game Activations",
@@ -1877,6 +2441,7 @@ let PluginEntryPointMain = function () {
                         ubisoftHeader: "Ubisoft Activation",
                         tokenReqContent: "token_req.txt content:",
                         copyFile: "Copy File",
+                        copyTooltip: "Copy the token_req.txt file itself to clipboard (for sharing in Discord or folders)",
                         copySuccess: "File Copied",
                         copyFail: "Copy Failed",
                         ubisoftEnterToken: "Enter token to create token.ini",
@@ -1909,7 +2474,10 @@ let PluginEntryPointMain = function () {
                         activationFilesInstalled: "Activation files installed successfully!",
                         installedSuccess: "Installed successfully!",
                         extracting: "Extracting...",
-                        downloadStartFailed: "Failed to start download"
+                        downloadStartFailed: "Failed to start download",
+                        comingSoon: "Coming Soon",
+                        enterUserID: "Enter your ID",
+                        pasteUserID: "Paste ID here..."
                     },
                     fixes: {
                         header: "Game Fixes",
@@ -1932,6 +2500,32 @@ let PluginEntryPointMain = function () {
                         installedFix: "{fixType} installed successfully!",
                         installFailed: "Installation failed",
                         installFailedGeneric: "Failed to install fix"
+                    },
+                    update: {
+                        checking: "Checking for updates...",
+                        available: "Update available: v{version}",
+                        upToDate: "You have the latest version",
+                        downloading: "Downloading update... {progress}%",
+                        downloadingSize: "Downloading... ({downloaded}MB / {total}MB)",
+                        extracting: "Extracting update files...",
+                        success: "Update complete! Please restart Steam.",
+                        failed: "Update failed: {error}",
+                        checkNow: "Check for Updates",
+                        updateNow: "Update Now",
+                        currentVersion: "Current version: v{version}",
+                        latestVersion: "Latest version: v{version}",
+                        noUpdates: "No updates available"
+                    },
+                    activationFiles: {
+                        title: "Activation Files",
+                        download: "Download Activation Files",
+                        downloading: "Downloading activation files...",
+                        downloadingProgress: "Downloading... ({downloaded}MB / {total}MB)",
+                        extracting: "Extracting files...",
+                        success: "Activation files installed successfully!",
+                        failed: "Download failed: {error}",
+                        notAvailable: "No activation files available",
+                        cancel: "Cancel"
                     }
                 },
                 ar: {
@@ -1943,7 +2537,47 @@ let PluginEntryPointMain = function () {
                         removing: "جاري الإزالة...",
                         cancel: "إلغاء",
                         restartSteam: "Steam إعادة تشغيل",
-                        openMenu: "Steam Tools"
+                        openMenu: "Steam Tools",
+                        addByAppId: "إضافة لعبة"
+                    },
+                    welcome: {
+                        title: "👋 Steam Tools هلا وسهلا بك في",
+                        textLine1: "Steam Tools شكراً لاستخدامك أداة",
+                        textLine2: "🎮 نتمنى لك تجربة ممتعة!",
+                        start: "🚀 يلا نبدأ"
+                    },
+                    addByAppId: {
+                        button: "إضافة لعبة",
+                        warning: "هذه الميزة مخصصة فقط للألعاب غير المتوفرة في بلدك<br>أو المحذوفة من متجر <span class=\"steam-highlight\">Steam</span>",
+                        title: "إضافة لعبة بـ AppID",
+                        inputLabel: "أدخل AppID الخاص باللعبة:",
+                        placeholder: "أدخل AppID اللعبة",
+                        hint: "يتم استخراج AppID من موقع SteamDB",
+                        submit: "إضافة اللعبة",
+                        adding: "جاري الإضافة...",
+                        checking: "جاري التحقق...",
+                        checkingAvailability: "جاري التحقق من التوفر...",
+                        available: "اللعبة متوفرة! جاري بدء التحميل...",
+                        notAvailable: "اللعبة غير متوفرة حالياً في قاعدة البيانات",
+                        searchSteamDb: "البحث في SteamDB",
+                        downloading: "جاري التحميل...",
+                        restartSteam: "إعادة تشغيل Steam",
+                        later: "لاحقاً",
+                        addedSuccess: "تمت إضافة اللعبة بنجاح!",
+                        done: "اكتمل",
+                        error: "حدث خطأ",
+                        gameUnavailable: "اللعبة غير متوفرة حالياً",
+                        startingDownload: "جاري بدء التحميل...",
+                        downloadingGame: "جاري تحميل اللعبة...",
+                        processing: "جاري المعالجة...",
+                        extracting: "جاري استخراج الملفات...",
+                        installing: "جاري التثبيت...",
+                        downloadFailed: "فشل التحميل",
+                        unknownError: "حدث خطأ غير معروف",
+                        restarting: "جاري إعادة التشغيل...",
+                        success: "تم بدء إضافة اللعبة! يمكنك متابعة التقدم من صفحة اللعبة.",
+                        errorEmpty: "الرجاء إدخال AppID",
+                        errorInvalid: "AppID غير صالح - يجب أن يكون رقماً صحيحاً"
                     },
                     welcomeTitle: "👋 مرحباً",
                     status: {
@@ -1966,8 +2600,46 @@ let PluginEntryPointMain = function () {
                         gameRemoved: "تم حذف اللعبة.",
                         downloadStarted: "بدأ التحميل...",
                         steamRestarting: "...Steam جاري إعادة تشغيل",
+                        restartRequired: "يجب إعادة تشغيل Steam لتظهر اللعبة",
                         dlcTitle: "⚠️ (DLC) محتوى إضافي",
                         dlcWarning: "DLC لا يمكنك إضافة بشكل منفصل.\n\nعند إضافة اللعبة الأساسية، ستحصل على جميع الإضافات معها تلقائياً."
+                    },
+                    xinput: {
+                        repairLibrary: "اصلاح المكتبة",
+                        executing: "جاري التنفيذ...",
+                        repairedRestarting: "تم الاصلاح! جاري إعادة التشغيل...",
+                        repairSuccess: "تمت عملية الإصلاح بنجاح",
+                        repairFailed: "فشل الإصلاح",
+                        repairStartFailed: "فشل بدء الإصلاح"
+                    },
+                    restartPopup: {
+                        message: "يجب إعادة تشغيل Steam لتظهر اللعبة",
+                        restart: "إعادة تشغيل Steam",
+                        later: "لاحقاً",
+                        restarting: "جاري إعادة التشغيل...",
+                        restartFailed: "فشل إعادة تشغيل Steam",
+                        errorTitle: "خطأ"
+                    },
+                    notificationDefaults: {
+                        success: "نجاح",
+                        error: "خطأ",
+                        warning: "تحذير",
+                        info: "Steam Tools"
+                    },
+                    autoUpdate: {
+                        downloading: "جاري تحميل التحديث...",
+                        invalidResponse: "استجابة غير صالحة من الخادم",
+                        updatedRestarting: "تم التحديث إلى {version}! جاري إعادة تشغيل Steam...",
+                        unknownError: "خطأ غير معروف",
+                        updateFailed: "فشل التحديث: {error}",
+                        autoUpdateFailed: "فشل التحديث التلقائي: {error}"
+                    },
+                    updatePopup: {
+                        title: "🎉 يتوفر تحديث جديد!",
+                        message: "الإصدار {version} متاح الآن!",
+                        updateNow: "تحديث الآن",
+                        later: "لاحقاً",
+                        restartingSteam: "جاري إعادة تشغيل Steam..."
                     },
                     activations: {
                         header: "تفعيلات الالعاب",
@@ -1982,6 +2654,7 @@ let PluginEntryPointMain = function () {
                         ubisoftHeader: "Ubisoft تفعيل لعبة",
                         tokenReqContent: ":token_req.txt محتوى",
                         copyFile: "نسخ الملف",
+                        copyTooltip: "نسخ ملف token_req.txt نفسه للحافظة (للصق في ديسكورد أو المجلدات)",
                         copySuccess: "تم نسخ الملف",
                         copyFail: "فشل النسخ",
                         ubisoftEnterToken: "token.ini أدخل التوكن لإنشاء",
@@ -1991,7 +2664,7 @@ let PluginEntryPointMain = function () {
                         back: "رجوع",
                         success: "تم بنجاح!",
                         tokenRequired: "الرجاء إدخال التوكن أولاً",
-                        eaHeader: "EA Games تفعيل لعبة",
+                        eaHeader: "EA تفعيل لعبة",
                         eaEnterToken: "anadius.cfg أدخل توكن Denuvo لملف",
                         eaActivate: "تفعيل اللعبة",
                         eaSearchInfo: "وتحديث قيمة التوكن<br><code style='color:#00bfa5'>anadius.cfg</code> سيتم البحث عن ملف",
@@ -2014,7 +2687,10 @@ let PluginEntryPointMain = function () {
                         activationFilesInstalled: "تم تثبيت ملفات التفعيل بنجاح!",
                         installedSuccess: "تم التثبيت بنجاح!",
                         extracting: "جاري الاستخراج...",
-                        downloadStartFailed: "فشل بدء التحميل"
+                        downloadStartFailed: "فشل بدء التحميل",
+                        comingSoon: "قريباً",
+                        enterUserID: "أدخل المعرف الخاص بك",
+                        pasteUserID: "الصق المعرف هنا..."
                     },
                     fixes: {
                         header: "إصلاحات الألعاب",
@@ -2038,9 +2714,36 @@ let PluginEntryPointMain = function () {
                         installFailed: "فشل التثبيت",
                         installFailedGeneric: "فشل في تثبيت الإصلاح"
                     },
+                    update: {
+                        checking: "جاري البحث عن تحديثات...",
+                        available: "v{version} :تحديث متاح",
+                        upToDate: "لديك أحدث إصدار",
+                        downloading: "{progress}% ...جاري تحميل التحديث",
+                        downloadingSize: "({total}MB / {downloaded}MB) ...جاري التحميل",
+                        extracting: "جاري استخراج ملفات التحديث...",
+                        success: ".Steam تم التحديث بنجاح! يرجى إعادة تشغيل",
+                        failed: "{error} :فشل التحديث",
+                        checkNow: "البحث عن تحديثات",
+                        updateNow: "تحديث الآن",
+                        currentVersion: "v{version} :الإصدار الحالي",
+                        latestVersion: "v{version} :أحدث إصدار",
+                        noUpdates: "لا توجد تحديثات متاحة"
+                    },
+                    activationFiles: {
+                        title: "ملفات التفعيل",
+                        download: "تحميل ملفات التفعيل",
+                        downloading: "جاري تحميل ملفات التفعيل...",
+                        downloadingProgress: "({total}MB / {downloaded}MB) ...جاري التحميل",
+                        extracting: "جاري استخراج الملفات...",
+                        success: "تم تثبيت ملفات التفعيل بنجاح!",
+                        failed: "{error} :فشل التحميل",
+                        notAvailable: "لا توجد ملفات تفعيل متاحة",
+                        cancel: "إلغاء"
+                    },
                     generic: {
                         error: "خطأ",
-                        close: "إغلاق"
+                        close: "إغلاق",
+                        empty: "(فارغ)"
                     }
                 }
             },
@@ -2126,6 +2829,15 @@ let PluginEntryPointMain = function () {
         function i(e, t) {
             return n.t(e, t)
         }
+        function isArabicLocale() {
+            return (n.currentLocale || currentLocale || 'en') === 'ar'
+        }
+        function uiDir() {
+            return isArabicLocale() ? 'rtl' : 'ltr'
+        }
+        function uiTextAlign() {
+            return isArabicLocale() ? 'right' : 'left'
+        }
         let r = !1;
         let menuOpen = !1;
         // Default Locale
@@ -2170,6 +2882,7 @@ let PluginEntryPointMain = function () {
             menuOpen = true;
             const overlay = document.createElement("div");
             overlay.setAttribute("data-mPhpMaster-menu", "main");
+            overlay.setAttribute("dir", uiDir());
             overlay.style.cssText = `
                 position: fixed;
                 top: 0;
@@ -2260,7 +2973,7 @@ let PluginEntryPointMain = function () {
             const titleContainer = document.createElement("div");
             titleContainer.style.cssText = "flex: 1;";
             const title = document.createElement("h2");
-            title.textContent = "Steam Tools";
+            title.textContent = i("btn.openMenu");
             title.style.cssText = `
                 margin: 0;
                 color: #ffffff;
@@ -2421,14 +3134,14 @@ let PluginEntryPointMain = function () {
                     align-items: center;
                     gap: 12px;
                     transition: all 0.2s ease;
-                    text-align: right;
-                    direction: rtl;
+                    text-align: ${uiTextAlign()};
+                    direction: ${uiDir()};
                 `;
                 activationsBtn.innerHTML = `<span style="font-size: 20px;">🔑</span><span>${i("activations.menuBtn")}</span>`;
                 activationsBtn.onmouseenter = () => {
                     activationsBtn.style.background = "linear-gradient(90deg, rgba(103, 193, 245, 0.3) 0%, rgba(42, 71, 94, 0.8) 100%)";
                     activationsBtn.style.borderColor = "#67c1f5";
-                    activationsBtn.style.transform = "translateX(-5px)";
+                    activationsBtn.style.transform = isArabicLocale() ? "translateX(-5px)" : "translateX(5px)";
                 };
                 activationsBtn.onmouseleave = () => {
                     activationsBtn.style.background = "linear-gradient(90deg, rgba(42, 71, 94, 0.8) 0%, rgba(27, 40, 56, 0.8) 100%)";
@@ -2473,14 +3186,14 @@ let PluginEntryPointMain = function () {
                     align-items: center;
                     gap: 12px;
                     transition: all 0.2s ease;
-                    text-align: right;
-                    direction: rtl;
+                    text-align: ${uiTextAlign()};
+                    direction: ${uiDir()};
                 `;
                 fixesBtn.innerHTML = `<span style="font-size: 20px;">🛠️</span><span>${i("fixes.menu")}</span>`;
                 fixesBtn.onmouseenter = () => {
                     fixesBtn.style.background = "linear-gradient(90deg, rgba(76, 175, 80, 0.5) 0%, rgba(42, 71, 94, 0.8) 100%)";
                     fixesBtn.style.borderColor = "#4caf50";
-                    fixesBtn.style.transform = "translateX(-5px)";
+                    fixesBtn.style.transform = isArabicLocale() ? "translateX(-5px)" : "translateX(5px)";
                 };
                 fixesBtn.onmouseleave = () => {
                     fixesBtn.style.background = "linear-gradient(90deg, rgba(76, 175, 80, 0.3) 0%, rgba(27, 40, 56, 0.8) 100%)";
@@ -2508,13 +3221,14 @@ let PluginEntryPointMain = function () {
                     align-items: center;
                     gap: 12px;
                     transition: all 0.2s ease;
-                    text-align: left;
+                    text-align: ${uiTextAlign()};
+                    direction: ${uiDir()};
                 `;
                 btn.innerHTML = `<span style="font-size: 20px;">${item.icon}</span><span>${item.label}</span>`;
                 btn.onmouseenter = () => {
                     btn.style.background = "linear-gradient(90deg, rgba(103, 193, 245, 0.3) 0%, rgba(42, 71, 94, 0.8) 100%)";
                     btn.style.borderColor = "#67c1f5";
-                    btn.style.transform = "translateX(5px)";
+                    btn.style.transform = isArabicLocale() ? "translateX(-5px)" : "translateX(5px)";
                 };
                 btn.onmouseleave = () => {
                     btn.style.background = "linear-gradient(90deg, rgba(42, 71, 94, 0.8) 0%, rgba(27, 40, 56, 0.8) 100%)";
@@ -2567,6 +3281,7 @@ let PluginEntryPointMain = function () {
             // Create overlay
             const overlay = document.createElement("div");
             overlay.setAttribute("data-mPhpMaster-menu", "fixes");
+            overlay.setAttribute("dir", uiDir());
             overlay.style.cssText = `
                 position: fixed;
                 top: 0;
@@ -2694,8 +3409,8 @@ let PluginEntryPointMain = function () {
                 overflow-y: auto;
                 padding: 30px;
                 background: linear-gradient(135deg, #0e141d 0%, #0a0e14 100%);
-                direction: rtl;
-                text-align: right;
+                direction: ${uiDir()};
+                text-align: ${uiTextAlign()};
                 position: relative;
             `;
 
@@ -3023,6 +3738,7 @@ let PluginEntryPointMain = function () {
             // Create new overlay for Activations menu
             const overlay = document.createElement("div");
             overlay.setAttribute("data-mPhpMaster-menu", "activations");
+            overlay.setAttribute("dir", uiDir());
             overlay.style.cssText = `
                 position: fixed;
                 top: 0;
@@ -3081,7 +3797,7 @@ let PluginEntryPointMain = function () {
                 font-weight: 700;
                 text-shadow: 0 2px 8px rgba(103, 193, 245, 0.4);
             `;
-            title.textContent = "Steam Tools · " + i("activations.title");
+            title.textContent = i("btn.openMenu") + " · " + i("activations.title");
 
             titleContainer.appendChild(logo);
             titleContainer.appendChild(title);
@@ -3298,7 +4014,7 @@ let PluginEntryPointMain = function () {
                         const searchResult = await l("SearchGameInAllDrives", { appid: currentAppId });
                         if (searchResult?.success && searchResult?.installPath) {
                             gameInstallPath = searchResult.installPath;
-                            mPhpMasterNotification.success(i("activations.foundInPath", { path: gameInstallPath }), "Steam Tools");
+                            mPhpMasterNotification.success(i("activations.foundInPath", { path: gameInstallPath }), i("btn.openMenu"));
 
                             // تحديث زر التحميل
                             downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>${i("activations.downloadActivationFiles")}</span>`;
@@ -3347,7 +4063,7 @@ let PluginEntryPointMain = function () {
                                 const searchResult = await l("SearchGameInAllDrives", { appid: currentAppId });
                                 if (searchResult?.success && searchResult?.installPath) {
                                     gameInstallPath = searchResult.installPath;
-                                    mPhpMasterNotification.success(i("activations.foundInPath", { path: gameInstallPath }), "Steam Tools");
+                                    mPhpMasterNotification.success(i("activations.foundInPath", { path: gameInstallPath }), i("btn.openMenu"));
                                     downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>${i("activations.downloadActivationFiles")}</span>`;
                                     downloadBtn.disabled = false;
                                     downloadBtn.style.opacity = "1";
@@ -3390,7 +4106,7 @@ let PluginEntryPointMain = function () {
                             const searchResult = await l("SearchGameInAllDrives", { appid: currentAppId });
                             if (searchResult?.success && searchResult?.installPath) {
                                 gameInstallPath = searchResult.installPath;
-                                mPhpMasterNotification.success(i("activations.foundInPath", { path: gameInstallPath }), "Steam Tools");
+                                mPhpMasterNotification.success(i("activations.foundInPath", { path: gameInstallPath }), i("btn.openMenu"));
                                 downloadBtn.innerHTML = `<span style="font-size: 22px;">📥</span><span>${i("activations.downloadActivationFiles")}</span>`;
                                 downloadBtn.disabled = false;
                                 downloadBtn.style.opacity = "1";
@@ -3452,7 +4168,7 @@ let PluginEntryPointMain = function () {
                     // Start download
                     const result = await l("DownloadActivationFiles", { appid: currentAppId, installPath: gameInstallPath });
                     if (result?.success) {
-                        mPhpMasterNotification.info(i("activations.activationFilesDownloading"), "Steam Tools");
+                        mPhpMasterNotification.info(i("activations.activationFilesDownloading"), i("btn.openMenu"));
 
                         // Poll for status
                         const checkStatus = async () => {
@@ -3460,7 +4176,7 @@ let PluginEntryPointMain = function () {
                             const state = status?.state || {};
 
                             if (state.status === "done") {
-                                mPhpMasterNotification.success(i("activations.activationFilesInstalled"), "Steam Tools");
+                                mPhpMasterNotification.success(i("activations.activationFilesInstalled"), i("btn.openMenu"));
                                 downloadBtn.disabled = false;
                                 downloadBtn.innerHTML = `<span style="font-size: 22px;">✅</span><span>${i("activations.installedSuccess")}</span>`;
                                 downloadBtn.style.background = "linear-gradient(135deg, #4caf50 0%, #388e3c 100%)";
@@ -3525,8 +4241,8 @@ let PluginEntryPointMain = function () {
                         font-size: 14px;
                         outline: none;
                         box-sizing: border-box;
-                        direction: ltr;
-                        text-align: left;
+                        direction: ${uiDir()};
+                        text-align: ${uiTextAlign()};
                         margin-bottom: 16px;
                     `;
                     userIdInput.onfocus = () => { userIdInput.style.borderColor = "#ff9800"; };
@@ -3554,8 +4270,8 @@ let PluginEntryPointMain = function () {
                     font-size: 14px;
                     outline: none;
                     box-sizing: border-box;
-                    direction: ltr;
-                    text-align: left;
+                    direction: ${uiDir()};
+                    text-align: ${uiTextAlign()};
                     margin-bottom: 16px;
                 `;
                 tokenInput.onfocus = () => { tokenInput.style.borderColor = "#67c1f5"; };
@@ -3681,7 +4397,7 @@ let PluginEntryPointMain = function () {
                 // Copy Button (Copies the file object)
                 const copyBtn = document.createElement("button");
                 copyBtn.innerHTML = "📋 " + i("activations.copyFile");
-                copyBtn.title = "نسخ ملف token_req.txt نفسه للحافظة (للصق في ديسكورد أو المجلدات)";
+                copyBtn.title = i("activations.copyTooltip");
                 copyBtn.style.cssText = `
                     background: rgba(255, 152, 0, 0.15);
                     border: 1px solid rgba(255, 152, 0, 0.3);
@@ -3738,8 +4454,8 @@ let PluginEntryPointMain = function () {
                     border-radius: 6px;
                     max-height: 100px;
                     overflow-y: auto;
-                    direction: ltr;
-                    text-align: left;
+                    direction: ${uiDir()};
+                    text-align: ${uiTextAlign()};
                     scrollbar-width: thin;
                     scrollbar-color: rgba(255, 152, 0, 0.3) rgba(0, 0, 0, 0.1);
                     line-height: 1.4;
@@ -3755,7 +4471,7 @@ let PluginEntryPointMain = function () {
                         const response = typeof result === "string" ? JSON.parse(result) : result;
 
                         if (response.success) {
-                            tokenReqContent.textContent = response.content || "(فارغ)";
+                            tokenReqContent.textContent = response.content || i("generic.empty");
                             tokenReqContent.style.color = "#67c1f5";
                             currentTokenFilePath = response.filePath; // Save path
                             copyBtn.style.display = "block";
@@ -3795,8 +4511,8 @@ let PluginEntryPointMain = function () {
                     font-size: 14px;
                     outline: none;
                     box-sizing: border-box;
-                    direction: ltr;
-                    text-align: left;
+                    direction: ${uiDir()};
+                    text-align: ${uiTextAlign()};
                     margin-bottom: 16px;
                     min-height: 120px;
                     resize: vertical;
@@ -4295,10 +5011,11 @@ let PluginEntryPointMain = function () {
                 {
                     const e = document.createElement("div");
                     e.setAttribute("data-mPhpMaster-modal", "download");
+                    e.setAttribute("dir", uiDir());
                     e.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);z-index:10000;animation:mphpmasterFadeIn 0.3s ease;";
 
                     const modalBox = document.createElement("div");
-                    modalBox.style.cssText = "background:linear-gradient(145deg,#1e3a4d 0%,#0d1b26 100%);border:2px solid rgba(103,193,245,0.5);border-radius:16px;padding:0;min-width:400px;max-width:480px;color:#fff;font-family:'Motiva Sans',Arial,sans-serif;box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 30px rgba(103,193,245,0.2);overflow:hidden;animation:mphpmasterSlideIn 0.4s cubic-bezier(0.68,-0.55,0.265,1.55);direction:rtl;";
+                    modalBox.style.cssText = "background:linear-gradient(145deg,#1e3a4d 0%,#0d1b26 100%);border:2px solid rgba(103,193,245,0.5);border-radius:16px;padding:0;min-width:400px;max-width:480px;color:#fff;font-family:'Motiva Sans',Arial,sans-serif;box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 30px rgba(103,193,245,0.2);overflow:hidden;animation:mphpmasterSlideIn 0.4s cubic-bezier(0.68,-0.55,0.265,1.55);direction:" + uiDir() + ";";
 
                     // Header with logo and close button
                     const header = document.createElement("div");
@@ -4309,7 +5026,7 @@ let PluginEntryPointMain = function () {
                     logo.style.cssText = "width:44px;height:44px;border-radius:50%;border:2px solid #67c1f5;box-shadow:0 0 20px rgba(103,193,245,0.5);";
 
                     const titleText = document.createElement("div");
-                    titleText.textContent = "Steam Tools";
+                    titleText.textContent = i("btn.openMenu");
                     titleText.style.cssText = "flex:1;color:#fff;font-size:18px;font-weight:700;text-shadow:0 2px 10px rgba(0,0,0,0.3);";
 
                     // Close button
@@ -4320,10 +5037,16 @@ let PluginEntryPointMain = function () {
                     closeBtn.onmouseleave = () => { closeBtn.style.background = "rgba(255,255,255,0.1)"; closeBtn.style.borderColor = "rgba(255,255,255,0.2)"; closeBtn.style.color = "#c7d5e0"; };
                     closeBtn.onclick = () => c(0);
 
-                    titleText.style.textAlign = "left";
-                    header.appendChild(closeBtn);
-                    header.appendChild(titleText);
-                    header.appendChild(logo);
+                    titleText.style.textAlign = uiTextAlign();
+                    if (isArabicLocale()) {
+                        header.appendChild(closeBtn);
+                        header.appendChild(titleText);
+                        header.appendChild(logo);
+                    } else {
+                        header.appendChild(logo);
+                        header.appendChild(titleText);
+                        header.appendChild(closeBtn);
+                    }
 
                     // Content area
                     const contentArea = document.createElement("div");
@@ -4338,7 +5061,7 @@ let PluginEntryPointMain = function () {
                     // Status text
                     o = document.createElement("div");
                     o.textContent = t;
-                    o.style.cssText = "font-size:15px;color:#c7d5e0;text-align:center;margin-bottom:20px;line-height:1.6;direction:rtl;";
+                    o.style.cssText = "font-size:15px;color:#c7d5e0;text-align:center;margin-bottom:20px;line-height:1.6;direction:" + uiDir() + ";";
 
                     // Progress section
                     const progressSection = document.createElement("div");
@@ -4356,7 +5079,7 @@ let PluginEntryPointMain = function () {
                     // Percent text
                     percentTextEl = document.createElement("div");
                     percentTextEl.style.cssText = "display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#8f98a0;";
-                    percentTextEl.innerHTML = '<span>0%</span><span>جاري التحميل...</span>';
+                    percentTextEl.innerHTML = `<span>0%</span><span>${i("status.downloading")}</span>`;
 
                     progressSection.appendChild(progressContainer);
                     progressSection.appendChild(percentTextEl);
@@ -4407,7 +5130,7 @@ let PluginEntryPointMain = function () {
                             if (percent > 0) progressBarEl.style.background = "linear-gradient(90deg,#4caf50,#81c784,#4caf50)";
                         }
                         if (percentTextEl) {
-                            const dlText = downloaded && total ? `${downloaded}MB / ${total}MB` : "جاري التحميل...";
+                            const dlText = downloaded && total ? `${downloaded}MB / ${total}MB` : i("status.downloading");
                             percentTextEl.innerHTML = `<span>${percent}%</span><span>${dlText}</span>`;
                         }
                     },
@@ -4445,7 +5168,7 @@ let PluginEntryPointMain = function () {
 
                         notice.innerHTML = `
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="#ff9800"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                            <span style="color:#ffb74d;font-weight:600;font-size:14px;">يجب إعادة تشغيل Steam لتظهر اللعبة</span>
+                            <span style="color:#ffb74d;font-weight:600;font-size:14px;">${i("notification.restartRequired")}</span>
                         `;
 
                         n.appendChild(notice);
@@ -4718,8 +5441,8 @@ let PluginEntryPointMain = function () {
                         ev.preventDefault(), ev.stopPropagation();
                         const btn = ev.currentTarget;
                         try {
-                            restartSpan.textContent = "Restarting...", btn.setAttribute("disabled", "true"), btn.style.opacity = "0.7", await l("RestartSteam")
-                            mPhpMasterNotification.info(i("notification.steamRestarting"), "Steam");
+                            restartSpan.textContent = i("notification.steamRestarting"), btn.setAttribute("disabled", "true"), btn.style.opacity = "0.7", await l("RestartSteam")
+                            mPhpMasterNotification.info(i("notification.steamRestarting"), i("btn.openMenu"));
                         } catch (err) {
                             mPhpMasterNotification.error(String(err));
                             s(`Error calling RestartSteam: ${String(err)}`)
@@ -4735,7 +5458,7 @@ let PluginEntryPointMain = function () {
                     const menuBtn = document.createElement("button");
                     menuBtn.className = "btnv6_blue_hoverfade";
                     menuBtn.style.cssText = "display: flex; align-items: center; justify-content: center; padding: 0; width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%); border: 2px solid #67c1f5; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 0 8px rgba(103, 193, 245, 0.3);";
-                    menuBtn.title = "Steam Tools";
+                    menuBtn.title = i("btn.openMenu");
                     menuBtn.onmouseenter = () => { menuBtn.style.boxShadow = "0 0 15px rgba(103, 193, 245, 0.6)"; menuBtn.style.transform = "scale(1.05)"; };
                     menuBtn.onmouseleave = () => { menuBtn.style.boxShadow = "0 0 8px rgba(103, 193, 245, 0.3)"; menuBtn.style.transform = "scale(1)"; };
                     const menuIcon = document.createElement("img");
