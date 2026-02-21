@@ -8,12 +8,14 @@
 # This script will:
 #   1. Detect Steam Path
 #   2. Add Steam to Windows Defender exclusions
-#   3. Remove steam.cfg (update blocker)
-#   4. Clean old installations
-#   5. Install Steamtools
-#   6. Install Steam Tools Plugin (mPhpMaster)
-#   7. Clean Steam cache
-#   8. Launch Steam & Enable Plugin
+#   3. Verify Steam is Closed
+#   4. Remove steam.cfg (update blocker)
+#   5. Clean old installations
+#   6. Install Steamtools
+#   7. Install Steam Tools Plugin (mPhpMaster)
+#   8. Clean Steam cache
+#   9. Launch Steam & Enable Plugin
+#   10. Install Millennium Framework
 # ================================================
 
 # Set UTF-8 encoding
@@ -61,6 +63,10 @@ Write-Host "    - Steam Tools Plugin (mPhpMaster)" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  Discord: https://discord.gg/cwpNMFgruV" -ForegroundColor Magenta
 Write-Host ""
+Write-Host "  ==========================================" -ForegroundColor Yellow
+Write-Host "  IMPORTANT: Please close Steam if running!" -ForegroundColor Yellow
+Write-Host "  ==========================================" -ForegroundColor Yellow
+Write-Host ""
 
 # ============================================
 # STEP 1: Detect Steam Path
@@ -107,53 +113,9 @@ Write-Host "        Path: $steamPath" -ForegroundColor DarkGray
 Write-Host ""
 
 # ============================================
-# STEP 2: Install Millennium Framework
+# STEP 2: Add Steam to Windows Defender Exclusions
 # ============================================
-Write-Host "  [2/10] Installing Millennium Framework..." -ForegroundColor Yellow
-
-# Close Steam before Millennium installation
-Write-Host "        Closing Steam..." -ForegroundColor DarkGray
-$steamProcesses = Get-Process -Name "steam*" -ErrorAction SilentlyContinue
-if ($steamProcesses) {
-    $steamProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
-    Start-Sleep -Seconds 3
-    # Double check
-    Get-Process -Name "steam*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-}
-
-$millenniumInstallerPath = Join-Path $env:TEMP "MillenniumInstaller-Windows.exe"
-
-try {
-    Write-Host "        Downloading Millennium Installer..." -ForegroundColor DarkGray
-    Invoke-WebRequest -Uri $millenniumInstallerUrl -OutFile $millenniumInstallerPath -UseBasicParsing -TimeoutSec 120
-    
-    Write-Host "        Running Millennium Installer..." -ForegroundColor DarkGray
-    Write-Host "        Please complete the Millennium installation when the window appears" -ForegroundColor Yellow
-    
-    # Run the installer and wait for it to complete
-    $process = Start-Process -FilePath $millenniumInstallerPath -Wait -PassThru
-    
-    if ($process.ExitCode -eq 0) {
-        Write-Host "        Millennium installed successfully!" -ForegroundColor Green
-    } else {
-        Write-Host "        Millennium installation completed (Exit code: $($process.ExitCode))" -ForegroundColor Yellow
-    }
-    
-    # Cleanup
-    Remove-Item $millenniumInstallerPath -Force -ErrorAction SilentlyContinue
-    
-    # Wait a moment after installation
-    Start-Sleep -Seconds 2
-} catch {
-    Write-Host "        Millennium installation failed: $_" -ForegroundColor Red
-    Write-Host "        Continuing with plugin installation..." -ForegroundColor Yellow
-}
-Write-Host ""
-
-# ============================================
-# STEP 3: Add Steam to Windows Defender Exclusions
-# ============================================
-Write-Host "  [3/10] Windows Defender exclusions..." -ForegroundColor Yellow -NoNewline
+Write-Host "  [2/10] Windows Defender exclusions..." -ForegroundColor Yellow -NoNewline
 try {
     $defenderPreferences = Get-MpPreference -ErrorAction SilentlyContinue
     if ($defenderPreferences.ExclusionPath -notcontains $steamPath) {
@@ -171,9 +133,9 @@ try {
 Write-Host ""
 
 # ============================================
-# STEP 4: Verify Steam is Closed
+# STEP 3: Verify Steam is Closed
 # ============================================
-Write-Host "  [4/10] Verifying Steam is closed..." -ForegroundColor Yellow -NoNewline
+Write-Host "  [3/10] Verifying Steam is closed..." -ForegroundColor Yellow -NoNewline
 $steamProcesses = Get-Process -Name "steam*" -ErrorAction SilentlyContinue
 if ($steamProcesses) {
     Write-Host ""
@@ -187,9 +149,9 @@ if ($steamProcesses) {
 Write-Host ""
 
 # ============================================
-# STEP 5: Remove steam.cfg (update blocker)
+# STEP 4: Remove steam.cfg (update blocker)
 # ============================================
-Write-Host "  [5/10] Removing steam.cfg..." -ForegroundColor Yellow -NoNewline
+Write-Host "  [4/10] Removing steam.cfg..." -ForegroundColor Yellow -NoNewline
 $steamCfgPath = Join-Path $steamPath "steam.cfg"
 
 if (Test-Path $steamCfgPath) {
@@ -203,9 +165,9 @@ if (Test-Path $steamCfgPath) {
 Write-Host ""
 
 # ============================================
-# STEP 6: Clean old installations
+# STEP 5: Clean old installations
 # ============================================
-Write-Host "  [6/10] Cleaning old installations..." -ForegroundColor Yellow
+Write-Host "  [5/10] Cleaning old installations..." -ForegroundColor Yellow
 
 # Remove old Steamtools files
 $steamtoolsFiles = @(
@@ -266,9 +228,9 @@ Write-Host "        Cleanup complete!" -ForegroundColor Green
 Write-Host ""
 
 # ============================================
-# STEP 7: Install Steamtools
+# STEP 6: Install Steamtools
 # ============================================
-Write-Host "  [7/10] Installing Steamtools..." -ForegroundColor Yellow -NoNewline
+Write-Host "  [6/10] Installing Steamtools..." -ForegroundColor Yellow -NoNewline
 $steamtoolsPath = Join-Path $steamPath "xinput1_4.dll"
 
 if (Test-Path $steamtoolsPath) {
@@ -310,9 +272,9 @@ if (Test-Path $steamtoolsPath) {
 Write-Host ""
 
 # ============================================
-# STEP 8: Install Steam Tools Plugin
+# STEP 7: Install Steam Tools Plugin
 # ============================================
-Write-Host "  [8/10] Installing $pluginName plugin..." -ForegroundColor Yellow
+Write-Host "  [7/10] Installing $pluginName plugin..." -ForegroundColor Yellow
 
 # Ensure plugins folder exists
 $pluginsFolder = Join-Path $steamPath "plugins"
@@ -363,9 +325,9 @@ try {
 Write-Host ""
 
 # ============================================
-# STEP 9: Clean Steam Cache
+# STEP 8: Clean Steam Cache
 # ============================================
-Write-Host "  [9/10] Cleaning Steam cache..." -ForegroundColor Yellow
+Write-Host "  [8/10] Cleaning Steam cache..." -ForegroundColor Yellow
 
 $backupPath = Join-Path $steamPath "cache-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
 New-Item -ItemType Directory -Path $backupPath -Force | Out-Null
@@ -405,9 +367,9 @@ Write-Host "        Cache cleaned! (Backup: $backupPath)" -ForegroundColor Green
 Write-Host ""
 
 # ============================================
-# STEP 10: Launch Steam & Enable Plugin
+# STEP 9: Launch Steam & Enable Plugin
 # ============================================
-Write-Host "  [10/10] Starting Steam & Enabling Plugin..." -ForegroundColor Yellow
+Write-Host "  [9/10] Starting Steam & Enabling Plugin..." -ForegroundColor Yellow
 
 # Enable plugin in config if exists
 $millenniumConfigPath = Join-Path $steamPath "ext\config.json"
@@ -429,6 +391,51 @@ if (Test-Path $millenniumConfigPath) {
 
 Write-Host "        Launching Steam..." -ForegroundColor DarkGray
 Start-Process -FilePath $steamExePath -ArgumentList "-clearbeta"
+Write-Host ""
+
+# ============================================
+# STEP 10: Install Millennium Framework
+# ============================================
+Write-Host "  [10/10] Installing Millennium Framework..." -ForegroundColor Yellow
+
+# Close Steam before Millennium installation
+Write-Host "        Closing Steam..." -ForegroundColor DarkGray
+$steamProcesses = Get-Process -Name "steam*" -ErrorAction SilentlyContinue
+if ($steamProcesses) {
+    $steamProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 3
+    # Double check
+    Get-Process -Name "steam*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+}
+
+$millenniumInstallerPath = Join-Path $env:TEMP "MillenniumInstaller-Windows.exe"
+
+try {
+    Write-Host "        Downloading Millennium Installer..." -ForegroundColor DarkGray
+    Invoke-WebRequest -Uri $millenniumInstallerUrl -OutFile $millenniumInstallerPath -UseBasicParsing -TimeoutSec 120
+    
+    Write-Host "        Running Millennium Installer..." -ForegroundColor DarkGray
+    Write-Host "        Please complete the Millennium installation when the window appears" -ForegroundColor Yellow
+    
+    # Run the installer and wait for it to complete
+    $process = Start-Process -FilePath $millenniumInstallerPath -Wait -PassThru
+    
+    if ($process.ExitCode -eq 0) {
+        Write-Host "        Millennium installed successfully!" -ForegroundColor Green
+    } else {
+        Write-Host "        Millennium installation completed (Exit code: $($process.ExitCode))" -ForegroundColor Yellow
+    }
+    
+    # Cleanup
+    Remove-Item $millenniumInstallerPath -Force -ErrorAction SilentlyContinue
+    
+    # Wait a moment after installation
+    Start-Sleep -Seconds 2
+} catch {
+    Write-Host "        Millennium installation failed: $_" -ForegroundColor Red
+    Write-Host "        You may need to install Millennium manually" -ForegroundColor Yellow
+}
+Write-Host ""
 
 # ============================================
 # DONE!
