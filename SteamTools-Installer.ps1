@@ -487,7 +487,8 @@ public static class Win32Show {
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
 }
 "@ -ErrorAction SilentlyContinue
-} catch {}
+}
+catch {}
 
 $steamShown = $false
 for ($i = 0; $i -lt 30; $i++) {
@@ -499,7 +500,8 @@ for ($i = 0; $i -lt 30; $i++) {
             [Win32Show]::SetForegroundWindow($steamMain.MainWindowHandle) | Out-Null
             $steamShown = $true
             break
-        } catch {}
+        }
+        catch {}
     }
 
     if ($i -eq 2 -or $i -eq 8 -or $i -eq 16) {
