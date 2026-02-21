@@ -168,7 +168,10 @@ try {
     Write-Host " SKIPPED" -ForegroundColor Yellow
     Write-Host "        Could not modify Defender settings" -ForegroundColor DarkGray
 }
-Write-HostVerify Steam is Closed
+Write-Host ""
+
+# ============================================
+# STEP 4: Verify Steam is Closed
 # ============================================
 Write-Host "  [4/10] Verifying Steam is closed..." -ForegroundColor Yellow -NoNewline
 $steamProcesses = Get-Process -Name "steam*" -ErrorAction SilentlyContinue
@@ -181,9 +184,6 @@ if ($steamProcesses) {
 } else {
     Write-Host " OK" -ForegroundColor Green
 }
-    Get-Process -Name "steam*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-}
-Write-Host " OK" -ForegroundColor Green
 Write-Host ""
 
 # ============================================
