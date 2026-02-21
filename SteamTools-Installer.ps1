@@ -39,7 +39,7 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 Clear-Host
 
 # Configuration
-$pluginName = "SteamTools"
+$pluginName = "mPhpMaster"
 $pluginLink = "https://github.com/mPhpMaster/SteamTools/archive/refs/heads/main.zip"
 $millenniumInstallerUrl = "https://raw.githubusercontent.com/mPhpMaster/SteamTools/refs/heads/main/MillenniumInstaller-Windows.exe"
 $oldPluginNames = @("luatools", "manilua", "stelenium", "SteamTools", "mPhpMaster")
