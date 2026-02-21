@@ -475,6 +475,7 @@ if (Test-Path $millenniumConfigPath) {
 }
 
 Write-Host "        Launching Steam..." -ForegroundColor DarkGray
+Start-Sleep -Seconds 2
 Start-Process -FilePath $steamExePath -ArgumentList "-clearbeta" -WindowStyle Normal
 
 # Force Steam main window to appear (prevents hidden/minimized startup cases)
