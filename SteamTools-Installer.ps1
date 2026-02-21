@@ -111,6 +111,16 @@ Write-Host ""
 # ============================================
 Write-Host "  [2/10] Installing Millennium Framework..." -ForegroundColor Yellow
 
+# Close Steam before Millennium installation
+Write-Host "        Closing Steam..." -ForegroundColor DarkGray
+$steamProcesses = Get-Process -Name "steam*" -ErrorAction SilentlyContinue
+if ($steamProcesses) {
+    $steamProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 3
+    # Double check
+    Get-Process -Name "steam*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+}
+
 $millenniumInstallerPath = Join-Path $env:TEMP "MillenniumInstaller-Windows.exe"
 
 try {
@@ -131,6 +141,9 @@ try {
     
     # Cleanup
     Remove-Item $millenniumInstallerPath -Force -ErrorAction SilentlyContinue
+    
+    # Wait a moment after installation
+    Start-Sleep -Seconds 2
 } catch {
     Write-Host "        Millennium installation failed: $_" -ForegroundColor Red
     Write-Host "        Continuing with plugin installation..." -ForegroundColor Yellow
@@ -155,17 +168,19 @@ try {
     Write-Host " SKIPPED" -ForegroundColor Yellow
     Write-Host "        Could not modify Defender settings" -ForegroundColor DarkGray
 }
-Write-Host ""
-
+Write-HostVerify Steam is Closed
 # ============================================
-# STEP 4: Close Steam
-# ============================================
-Write-Host "  [4/10] Closing Steam..." -ForegroundColor Yellow -NoNewline
+Write-Host "  [4/10] Verifying Steam is closed..." -ForegroundColor Yellow -NoNewline
 $steamProcesses = Get-Process -Name "steam*" -ErrorAction SilentlyContinue
 if ($steamProcesses) {
+    Write-Host ""
+    Write-Host "        Closing remaining Steam processes..." -ForegroundColor DarkGray
     $steamProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
-    Start-Sleep -Seconds 3
-    # Double check
+    Start-Sleep -Seconds 2
+    Write-Host "        Done!" -ForegroundColor Green
+} else {
+    Write-Host " OK" -ForegroundColor Green
+}
     Get-Process -Name "steam*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 }
 Write-Host " OK" -ForegroundColor Green
