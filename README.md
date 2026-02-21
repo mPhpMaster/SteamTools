@@ -672,6 +672,6 @@ This software is provided for **educational and research purposes only**. By usi
 
 ---
 
-## Made with ❤️ by the SteamTools Community
+## Made From <https://github.com/MDQI1/PolarTools>
 
 ⭐ Star this repo if you find it useful!
