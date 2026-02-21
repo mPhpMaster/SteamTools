@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/SteamClientHomebrew/Millennium/main/src/sys/plugin-schema.json",
+  "name": "mPhpMaster",
+  "common_name": "Steam Tools",
+  "description": "developed by mPhpMaster ",
+  "version": "1.8.6",
+  "author": "mPhpMaster",
+  "github": {
+    "owner": "mPhpMaster",
+    "repo": "SteamTools"
+  }
+}
