@@ -441,81 +441,109 @@ catch {
 }
 Write-Host ""
 
-# # ============================================
-# # STEP 10: Launch Steam & Enable Plugin
-# # ============================================
-# Write-Host "  [10/10] Starting Steam & Enabling Plugin..." -ForegroundColor Yellow
+# ============================================
+# STEP 10: Launch Steam & Enable Plugin
+# ============================================
+Write-Host "  [10/10] Starting Steam & Enabling Plugin..." -ForegroundColor Yellow
 
-# # Enable plugin in config if exists
-# $millenniumConfigPath = Join-Path $steamPath "ext\config.json"
-# if (Test-Path $millenniumConfigPath) {
-#     try {
-#         $config = Get-Content $millenniumConfigPath -Raw | ConvertFrom-Json
+# Enable plugin in config if exists
+$millenniumConfigPath = Join-Path $steamPath "ext\config.json"
+if (Test-Path $millenniumConfigPath) {
+    try {
+        $config = Get-Content $millenniumConfigPath -Raw | ConvertFrom-Json
         
-#         if (-not $config.PSObject.Properties['plugins'] -or -not $config.plugins) {
-#             $config | Add-Member -NotePropertyName 'plugins' -NotePropertyValue ([PSCustomObject]@{}) -Force
-#         }
+        if (-not $config.PSObject.Properties['plugins'] -or -not $config.plugins) {
+            $config | Add-Member -NotePropertyName 'plugins' -NotePropertyValue ([PSCustomObject]@{}) -Force
+        }
 
-#         if (-not $config.plugins.PSObject.Properties['enabledPlugins'] -or -not $config.plugins.enabledPlugins) {
-#             $config.plugins | Add-Member -NotePropertyName 'enabledPlugins' -NotePropertyValue @() -Force
-#         }
+        if (-not $config.plugins.PSObject.Properties['enabledPlugins'] -or -not $config.plugins.enabledPlugins) {
+            $config.plugins | Add-Member -NotePropertyName 'enabledPlugins' -NotePropertyValue @() -Force
+        }
 
-#         $enabledPlugins = @($config.plugins.enabledPlugins)
-#         if ($enabledPlugins -notcontains $pluginName) {
-#             $enabledPlugins += $pluginName
-#         }
-#         $config.plugins.enabledPlugins = $enabledPlugins
+        $enabledPlugins = @($config.plugins.enabledPlugins)
+        if ($enabledPlugins -notcontains $pluginName) {
+            $enabledPlugins += $pluginName
+        }
+        $config.plugins.enabledPlugins = $enabledPlugins
 
-#         $config | ConvertTo-Json -Depth 10 | Set-Content $millenniumConfigPath -Encoding UTF8
-#         Write-Host "        Plugin enabled in config!" -ForegroundColor Green
-#     }
-#     catch {
-#         Write-Host "        Could not modify config file: $_" -ForegroundColor Yellow
-#     }
-# }
+        $config | ConvertTo-Json -Depth 10 | Set-Content $millenniumConfigPath -Encoding UTF8
+        Write-Host "        Plugin enabled in config!" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "        Could not modify config file: $_" -ForegroundColor Yellow
+    }
+}
 
-# Write-Host "        Launching Steam..." -ForegroundColor DarkGray
-# Start-Sleep -Seconds 2
-# Start-Process -FilePath $steamExePath -ArgumentList "-clearbeta" -WindowStyle Normal
+Write-Host "        Launching Steam..." -ForegroundColor DarkGray
+Start-Process -FilePath $steamExePath -ArgumentList "-clearbeta" -WindowStyle Normal
 
-# # Force Steam main window to appear (prevents hidden/minimized startup cases)
-# try {
-#     Add-Type -TypeDefinition @"
-# using System;
-# using System.Runtime.InteropServices;
-# public static class Win32Show {
-#     [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
-#     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
-# }
-# "@ -ErrorAction SilentlyContinue
-# }
-# catch {}
+try {
+    Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public static class Win32Show {
+    [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+    [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
+}
+"@ -ErrorAction SilentlyContinue
+}
+catch {}
 
-# $steamShown = $false
-# for ($i = 0; $i -lt 30; $i++) {
-#     $steamMain = Get-Process -Name "steam" -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 } | Select-Object -First 1
+function Show-SteamMainWindow {
+    param([int]$MaxSeconds = 20)
 
-#     if ($steamMain) {
-#         try {
-#             [Win32Show]::ShowWindowAsync($steamMain.MainWindowHandle, 9) | Out-Null   # SW_RESTORE
-#             [Win32Show]::SetForegroundWindow($steamMain.MainWindowHandle) | Out-Null
-#             $steamShown = $true
-#             break
-#         }
-#         catch {}
-#     }
+    $wshell = $null
+    try { $wshell = New-Object -ComObject WScript.Shell } catch {}
 
-#     if ($i -eq 2 -or $i -eq 8 -or $i -eq 16) {
-#         Start-Process "steam://open/main" | Out-Null
-#     }
+    for ($sec = 0; $sec -lt $MaxSeconds; $sec++) {
+        $steamMain = Get-Process -Name "steam" -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 } | Select-Object -First 1
 
-#     Start-Sleep -Seconds 1
-# }
+        if ($steamMain) {
+            try {
+                [Win32Show]::ShowWindowAsync($steamMain.MainWindowHandle, 9) | Out-Null  # SW_RESTORE
+                [Win32Show]::SetForegroundWindow($steamMain.MainWindowHandle) | Out-Null
+            }
+            catch {}
 
-# if (-not $steamShown) {
-#     Start-Process "steam://open/main" | Out-Null
-# }
-# Write-Host ""
+            try {
+                if ($wshell) { $null = $wshell.AppActivate($steamMain.Id) }
+            }
+            catch {}
+
+            return $true
+        }
+
+        if ($sec -in 1, 4, 8, 12, 16) {
+            Start-Process "steam://open/main" | Out-Null
+        }
+
+        Start-Sleep -Seconds 1
+    }
+
+    return $false
+}
+
+$steamShown = Show-SteamMainWindow -MaxSeconds 20
+
+if (-not $steamShown) {
+    Write-Host "        Steam started in background, retrying launch..." -ForegroundColor Yellow
+    Get-Process -Name "steam*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 2
+
+    Start-Process -FilePath $steamExePath -ArgumentList "-clearbeta" -WindowStyle Normal
+    Start-Sleep -Seconds 2
+    Start-Process "steam://open/main" | Out-Null
+
+    $steamShown = Show-SteamMainWindow -MaxSeconds 15
+}
+
+if ($steamShown) {
+    Write-Host "        Steam window is visible." -ForegroundColor Green
+}
+else {
+    Write-Host "        Steam is running but still hidden. Please open it from the taskbar once." -ForegroundColor Yellow
+}
+Write-Host ""
 
 # ============================================
 # DONE!
