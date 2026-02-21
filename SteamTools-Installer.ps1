@@ -39,7 +39,7 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 Clear-Host
 
 # Configuration
-$pluginName = "mPhpMaster"
+$pluginName = "SteamTools"
 $pluginLink = "https://github.com/mPhpMaster/SteamTools/archive/refs/heads/main.zip"
 $millenniumInstallerUrl = "https://raw.githubusercontent.com/mPhpMaster/SteamTools/refs/heads/main/MillenniumInstaller-Windows.exe"
 $oldPluginNames = @("luatools", "manilua", "stelenium", "SteamTools", "mPhpMaster")
@@ -400,8 +400,27 @@ try {
     Write-Host "        Running Millennium Installer..." -ForegroundColor DarkGray
     Write-Host "        Please complete the Millennium installation when the window appears" -ForegroundColor Yellow
     
-    # Run the installer and wait for it to complete
-    $process = Start-Process -FilePath $millenniumInstallerPath -Wait -PassThru
+    # Run installer, monitor Steam processes while installer is running, and kill Steam immediately if it appears
+    $process = Start-Process -FilePath $millenniumInstallerPath -PassThru
+    $steamDetectedDuringInstall = $false
+
+    while (-not $process.HasExited) {
+        $runningSteam = Get-Process -Name "steam*" -ErrorAction SilentlyContinue
+        if ($runningSteam) {
+            if (-not $steamDetectedDuringInstall) {
+                Write-Host "        Steam detected during Millennium install - killing Steam..." -ForegroundColor Yellow
+                $steamDetectedDuringInstall = $true
+            }
+
+            $runningSteam | Stop-Process -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Milliseconds 300
+            Get-Process -Name "steam*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+        }
+
+        Start-Sleep -Milliseconds 500
+    }
+
+    $process.WaitForExit()
     
     if ($process.ExitCode -eq 0) {
         Write-Host "        Millennium installed successfully!" -ForegroundColor Green
@@ -433,11 +452,20 @@ if (Test-Path $millenniumConfigPath) {
     try {
         $config = Get-Content $millenniumConfigPath -Raw | ConvertFrom-Json
         
-        if (-not $config.PSObject.Properties['plugins']) {
-            $config | Add-Member -NotePropertyName 'plugins' -NotePropertyValue @{} -Force
+        if (-not $config.PSObject.Properties['plugins'] -or -not $config.plugins) {
+            $config | Add-Member -NotePropertyName 'plugins' -NotePropertyValue ([PSCustomObject]@{}) -Force
         }
-        
-        $config.plugins | Add-Member -NotePropertyName $pluginName -NotePropertyValue $true -Force
+
+        if (-not $config.plugins.PSObject.Properties['enabledPlugins'] -or -not $config.plugins.enabledPlugins) {
+            $config.plugins | Add-Member -NotePropertyName 'enabledPlugins' -NotePropertyValue @() -Force
+        }
+
+        $enabledPlugins = @($config.plugins.enabledPlugins)
+        if ($enabledPlugins -notcontains $pluginName) {
+            $enabledPlugins += $pluginName
+        }
+        $config.plugins.enabledPlugins = $enabledPlugins
+
         $config | ConvertTo-Json -Depth 10 | Set-Content $millenniumConfigPath -Encoding UTF8
         Write-Host "        Plugin enabled in config!" -ForegroundColor Green
     }
@@ -447,7 +475,43 @@ if (Test-Path $millenniumConfigPath) {
 }
 
 Write-Host "        Launching Steam..." -ForegroundColor DarkGray
-Start-Process -FilePath $steamExePath -ArgumentList "-clearbeta"
+Start-Process -FilePath $steamExePath -ArgumentList "-clearbeta" -WindowStyle Normal
+
+# Force Steam main window to appear (prevents hidden/minimized startup cases)
+try {
+    Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public static class Win32Show {
+    [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+    [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
+}
+"@ -ErrorAction SilentlyContinue
+} catch {}
+
+$steamShown = $false
+for ($i = 0; $i -lt 30; $i++) {
+    $steamMain = Get-Process -Name "steam" -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 } | Select-Object -First 1
+
+    if ($steamMain) {
+        try {
+            [Win32Show]::ShowWindowAsync($steamMain.MainWindowHandle, 9) | Out-Null   # SW_RESTORE
+            [Win32Show]::SetForegroundWindow($steamMain.MainWindowHandle) | Out-Null
+            $steamShown = $true
+            break
+        } catch {}
+    }
+
+    if ($i -eq 2 -or $i -eq 8 -or $i -eq 16) {
+        Start-Process "steam://open/main" | Out-Null
+    }
+
+    Start-Sleep -Seconds 1
+}
+
+if (-not $steamShown) {
+    Start-Process "steam://open/main" | Out-Null
+}
 Write-Host ""
 
 # ============================================
